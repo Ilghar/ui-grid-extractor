@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "check": "8px base recovered",
+      "ok": true
+    },
+    {
+      "check": "3 columns, 112px pitch, 24px margin",
+      "ok": true
+    },
+    {
+      "check": "type scale 1.25",
+      "ok": true
+    },
+    {
+      "check": "exact claim on clean fixture",
+      "ok": true
+    },
+    {
+      "check": "pt@200% normalises to same px tokens",
+      "ok": true
+    },
+    {
+      "check": "misaligned guide fails exactness",
+      "ok": true
+    },
+    {
+      "check": "5px evidence does not become 4/8pt",
+      "ok": true
+    }
+  ],
+  "passed": 7,
+  "total": 7
+}

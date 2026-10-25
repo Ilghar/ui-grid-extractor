@@ -1,0 +1,127 @@
+{
+  "base_unit": {
+    "base_px": null,
+    "candidates": [
+      {
+        "base_px": 8,
+        "fit": 0.9655,
+        "max_residual": 3.0,
+        "mean_residual": 0.1034
+      },
+      {
+        "base_px": 4,
+        "fit": 0.9655,
+        "max_residual": 1.0,
+        "mean_residual": 0.0345
+      },
+      {
+        "base_px": 2,
+        "fit": 0.9655,
+        "max_residual": 1.0,
+        "mean_residual": 0.0345
+      },
+      {
+        "base_px": 16,
+        "fit": 0.5517,
+        "max_residual": 8.0,
+        "mean_residual": 3.4828
+      },
+      {
+        "base_px": 12,
+        "fit": 0.4828,
+        "max_residual": 5.0,
+        "mean_residual": 2.1034
+      },
+      {
+        "base_px": 6,
+        "fit": 0.4828,
+        "max_residual": 2.0,
+        "mean_residual": 1.0
+      },
+      {
+        "base_px": 3,
+        "fit": 0.4828,
+        "max_residual": 1.0,
+        "mean_residual": 0.5172
+      },
+      {
+        "base_px": 10,
+        "fit": 0.1724,
+        "max_residual": 4.0,
+        "mean_residual": 2.6552
+      },
+      {
+        "base_px": 5,
+        "fit": 0.1724,
+        "max_residual": 2.0,
+        "mean_residual": 1.1034
+      }
+    ],
+    "competing": [],
+    "n_values": 29,
+    "note": "no candidate base fits every measured value within tolerance; no grid is claimed",
+    "verdict": "unsupported"
+  },
+  "columns": {
+    "guides_px": [
+      24.0,
+      139.0,
+      248.0
+    ],
+    "margin_left_px": 24.0,
+    "misaligned": [
+      "card1"
+    ],
+    "pitch_px": null,
+    "reference_base_px": 8,
+    "regular": false,
+    "steps_px": [
+      115.0,
+      109.0
+    ]
+  },
+  "exact": false,
+  "frame_px": {
+    "height": 400.0,
+    "width": 376.0
+  },
+  "input_unit": "px",
+  "measured_support": 0.5,
+  "px_factor": 1.0,
+  "schema_version": 1,
+  "source": "synthetic/card-misaligned",
+  "spacing_px": [
+    24.0
+  ],
+  "supported_fields": {
+    "base_unit": false,
+    "columns": false,
+    "spacing": true,
+    "type_scale": true
+  },
+  "tokens": {
+    "font.ratio": 1.25,
+    "font.size.0": "12.8px",
+    "font.size.1": "16px",
+    "font.size.2": "20px",
+    "font.size.3": "25px",
+    "space.1": "24px"
+  },
+  "tolerance_px": 0.5,
+  "type_scale": {
+    "modular_ratio": 1.25,
+    "ratios": [
+      1.25,
+      1.25,
+      1.25
+    ],
+    "sizes_px": [
+      12.8,
+      16.0,
+      20.0,
+      25.0
+    ],
+    "verdict": "modular"
+  },
+  "zoom": 1
+}
