@@ -63,6 +63,7 @@
     "verdict": "unsupported"
   },
   "columns": {
+    "evidence": "sufficient",
     "guides_px": [
       24.0,
       139.0,

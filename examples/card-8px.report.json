@@ -62,6 +62,7 @@
     "verdict": "supported"
   },
   "columns": {
+    "evidence": "sufficient",
     "guides_px": [
       24.0,
       136.0,
