@@ -4,6 +4,7 @@ Inputs are explicit measured coordinates (never pixels guessed from images).
 No default 4/8pt grid: a base unit is only reported when the evidence supports it.
 """
 import json, math
+from xml.sax.saxutils import escape
 
 UNITS_TO_PX = {"px": 1.0, "pt": 96.0 / 72.0, "mm": 96.0 / 25.4}
 SCHEMA_VERSION = 1
@@ -69,9 +70,34 @@ def validate(doc):
         tol_px = tol * UNITS_TO_PX[unit] / zoom
         if tol_px >= min(CANDIDATE_BASES) / 2:
             errs.append("tolerance %.4gpx must be < %gpx (half the smallest candidate base)" % (tol_px, min(CANDIDATE_BASES) / 2))
+    if not errs:
+        errs = Bounds.after_normalise(doc)
     if errs:
         raise FixtureError(errs)
     return doc
+
+
+class Bounds:
+    """Checks that only hold after unit/zoom conversion and 4-decimal rounding."""
+    MIN_PX = 1e-4  # smallest positive value that survives round(v, 4)
+    MAX_BASELINES = 4096  # overlay draws no baseline lines beyond this many (frame too tall to render)
+
+    @staticmethod
+    def after_normalise(doc):
+        f = UNITS_TO_PX[doc["unit"]] / float(doc.get("zoom", 1.0))
+        errs = []
+        for i, e in enumerate(doc["elements"]):
+            for k in ("x", "y", "w", "h", "font_size"):
+                if k not in e:
+                    continue
+                v = e[k] * f
+                if not math.isfinite(v):
+                    errs.append("elements[%d].%s overflows after unit/zoom conversion" % (i, k))
+                elif e[k] > 0 and round(v, 4) < Bounds.MIN_PX:
+                    errs.append("elements[%d].%s rounds to 0px after conversion (must be >= %gpx)" % (i, k, Bounds.MIN_PX))
+        if not all(math.isfinite(doc["frame"][k] * f) for k in ("width", "height")):
+            errs.append("frame overflows after unit/zoom conversion")
+        return errs
 
 
 def normalise(doc):
@@ -235,7 +261,7 @@ def svg_overlay(doc, r, theme="light"):
     p = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %g %g" width="%g" height="%g">' % (W, H, W, H),
          '<rect width="100%%" height="100%%" fill="%s"/>' % T["canvas"]]
     b = r["base_unit"]["base_px"] if r["base_unit"]["verdict"] == "supported" else None
-    if b:
+    if b and H / b <= Bounds.MAX_BASELINES:
         y = 0
         while y <= H:
             p.append('<line x1="0" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="0.25" opacity="0.5"/>' % (y, W, y, T["subtle"]))
@@ -249,7 +275,7 @@ def svg_overlay(doc, r, theme="light"):
         p.append('<rect x="%g" y="%g" width="%g" height="%g" fill="%s" fill-opacity="%s" stroke="%s" stroke-width="1.5"%s/>' % (
             e["x"], e["y"], e["w"], e["h"], T["accent"], "0.35" if bad else "0", T["ink"], ' stroke-dasharray="4 2"' if bad else ""))
         p.append('<text x="%g" y="%g" font-family="Jost, sans-serif" font-size="9" fill="%s">%s</text>' % (
-            e["x"] + 3, e["y"] + 11, T["ink"], e["id"] + (" \u2715 misaligned" if bad else "")))
+            e["x"] + 3, e["y"] + 11, T["ink"], "\u2068" + escape(e["id"]) + "\u2069" + (" \u2715 misaligned" if bad else "")))
     p.append("</svg>")
     p[0] = p[0].replace("<svg ", '<svg data-theme="%s" ' % theme, 1)
     return "\n".join(p) + "\n"

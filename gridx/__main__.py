@@ -37,8 +37,11 @@ def main(argv=None):
     r = core.analyse(doc)
     if skipped is not None:
         r["svg_skipped"] = skipped
-    if ns.svg: open(ns.svg, "w").write(core.svg_overlay(doc, r, ns.theme))
-    if ns.css: open(ns.css, "w").write(core.css_tokens(r))
+    try:
+        if ns.svg: open(ns.svg, "w", encoding="utf-8").write(core.svg_overlay(doc, r, ns.theme))
+        if ns.css: open(ns.css, "w", encoding="utf-8").write(core.css_tokens(r))
+    except OSError as e:
+        sys.stdout.write(core.dumps({"valid": True, "errors": ["cannot write output: %s" % e]})); return 2
     sys.stdout.write(core.dumps(r)); return 0
 
 if __name__ == "__main__":
