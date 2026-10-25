@@ -1,8 +1,50 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><title>Measured UI Grid Extractor — ilghar.studio</title>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;500&display=swap" rel="stylesheet">
-<style>body{background:#f3f1f6;color:#4a3a5c;font-family:Jost,sans-serif;max-width:860px;margin:4rem auto;padding:0 1.5rem;line-height:1.6}h1{font-weight:300;font-size:2.6rem;letter-spacing:-.01em}em{color:#c97a98;font-style:normal}figure{display:inline-block;margin:1rem 1rem 0 0}figcaption{color:#a394ae;font-size:.85rem}img{border:1px solid #a394ae}</style>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Measured UI Grid Extractor — ilghar.studio</title>
+<script>/* apply saved or system theme before paint */
+(function(){try{var t=localStorage.getItem("gridx-theme");}catch(e){}
+if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+document.documentElement.classList.toggle("dark",t==="dark");})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Nunito+Sans:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* tokens from Ilghar/ilghar-studio src/styles.css */
+:root{--canvas:#f3f1f6;--surface:#fffcfe;--ink:#4a3a5c;--muted:#7a688c;--subtle:#a394ae;--accent:#c97a98;--line:#e4dde8;--ring:#c97a98}
+.dark{--canvas:#4a434c;--surface:#5a535c;--ink:#f4eef3;--muted:#cbbdce;--subtle:#9a8a9c;--accent:#e8a8bc;--line:#4a424c;--ring:#e8a8bc}
+html{background:var(--canvas);color:var(--ink)}
+body{font-family:Jost,"Avenir Next",Helvetica,Arial,sans-serif;max-width:880px;margin:0 auto;padding:3rem 1.5rem;line-height:1.6}
+header{display:flex;justify-content:space-between;align-items:center;font-family:"Nunito Sans",Jost,sans-serif;font-weight:700;letter-spacing:.04em}
+h1{font-weight:300;font-size:2.6rem;line-height:1.15;text-wrap:balance}
+h1 em{color:var(--accent);font-style:normal}
+p{text-wrap:pretty}
+button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;cursor:pointer}
+button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+figure{display:inline-block;margin:1rem 1rem 0 0;max-width:376px}
+figure img{width:100%;border:1px solid var(--line);border-radius:6px}
+figcaption{color:var(--ink);font-size:.9rem}
+.light-only{display:inline}.dark-only{display:none}
+.dark .light-only{display:none}.dark .dark-only{display:inline}
+footer{margin-top:3rem;color:var(--muted);font-size:1.2rem}
+</style>
+</head>
+<body>
+<header><span>ilghar.studio</span>
+<button id="theme" type="button" aria-pressed="false">Dark mode</button></header>
+<main>
 <h1>Measure the grid.<br><em>Don’t assume it.</em></h1>
-<p>A layout grid is a claim. This tool takes measured element coordinates (px, pt or mm, at any zoom), tests every candidate base unit against the evidence, and only exports spacing, column and type-scale tokens the numbers actually support. No default 4/8pt. Uncertainty is kept visible.</p>
-<figure><img src="card-8px.svg" width="376"><figcaption>Clean fixture: 8px rhythm, 3 columns @ 112px — exact.</figcaption></figure>
-<figure><img src="card-misaligned.svg" width="376"><figcaption>card1 nudged 3px: flagged in rose, exactness refused.</figcaption></figure>
-<p style="color:#a394ae">ilghar.studio</p></html>
+<p>A layout grid is a claim. This tool takes measured element coordinates (px, pt or mm, at any zoom, or boxes from an SVG), tests every candidate base unit against the evidence, and only exports spacing, column and type-scale tokens the numbers support. No default 4/8pt. Fewer than three elements or column guides is reported as <strong>insufficient</strong>, never as a grid.</p>
+<figure><img class="light-only" src="card-8px.light.svg" alt="Clean layout overlay: 8px baseline, three columns"><img class="dark-only" src="card-8px.dark.svg" alt="Clean layout overlay: 8px baseline, three columns"><figcaption>Clean fixture: 8px rhythm, 3 columns @ 112px — exact.</figcaption></figure>
+<figure><img class="light-only" src="card-misaligned.light.svg" alt="Overlay with card1 dashed and labelled misaligned"><img class="dark-only" src="card-misaligned.dark.svg" alt="Overlay with card1 dashed and labelled misaligned"><figcaption>card1 nudged 3px: dashed, labelled, exactness refused.</figcaption></figure>
+</main>
+<footer>ilghar.studio</footer>
+<script>
+(function(){var b=document.getElementById("theme"),r=document.documentElement;
+function sync(){var d=r.classList.contains("dark");b.setAttribute("aria-pressed",String(d));b.textContent=d?"Light mode":"Dark mode";}
+b.addEventListener("click",function(){var d=!r.classList.contains("dark");r.classList.toggle("dark",d);try{localStorage.setItem("gridx-theme",d?"dark":"light");}catch(e){}sync();});
+sync();})();
+</script>
+</body>
+</html>
