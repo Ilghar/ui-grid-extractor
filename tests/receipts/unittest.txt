@@ -1,8 +1,23 @@
+test_bools_rejected (test_gridx.Adversarial.test_bools_rejected) ... ok
+test_min_evidence_base (test_gridx.Adversarial.test_min_evidence_base) ... ok
+test_min_evidence_columns (test_gridx.Adversarial.test_min_evidence_columns) ... ok
+test_missing_and_bad_files (test_gridx.Adversarial.test_missing_and_bad_files) ... /workspace/uigrid/tests/test_gridx.py:79: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpm6tsx1yb/bad.json' mode='w' encoding='UTF-8'>
+  bad = os.path.join(td, "bad.json"); open(bad, "w").write("{not json")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_nan_is_error_not_exact (test_gridx.Adversarial.test_nan_is_error_not_exact) ... /workspace/uigrid/tests/test_gridx.py:67: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp7tpjnitn/nan.json' mode='w' encoding='UTF-8'>
+  open(f, "w").write(core.dumps(self.base()).replace('"x": 24,', '"x": NaN,', 1))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_negative_is_error (test_gridx.Adversarial.test_negative_is_error) ... ok
+test_non_string_unit (test_gridx.Adversarial.test_non_string_unit) ... ok
+test_tolerance_bounded (test_gridx.Adversarial.test_tolerance_bounded) ... ok
+test_zoom_bounds (test_gridx.Adversarial.test_zoom_bounds) ... ok
 test_ambiguous_preserved (test_gridx.T.test_ambiguous_preserved) ... ok
-test_cli (test_gridx.T.test_cli) ... /workspace/uigrid/tests/test_gridx.py:46: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwidjn5zm/t.css' mode='r' encoding='UTF-8'>
+test_cli (test_gridx.T.test_cli) ... /workspace/uigrid/tests/test_gridx.py:46: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmphm6xan0g/t.css' mode='r' encoding='UTF-8'>
   self.assertIn("--grid-pitch: 112px;", open(os.path.join(td, "t.css")).read())
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/uigrid/tests/test_gridx.py:47: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwidjn5zm/bad.json' mode='w' encoding='UTF-8'>
+/workspace/uigrid/tests/test_gridx.py:47: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmphm6xan0g/bad.json' mode='w' encoding='UTF-8'>
   json.dump({"unit": "px"}, open(os.path.join(td, "bad.json"), "w"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -13,6 +28,8 @@ test_svg_palette (test_gridx.T.test_svg_palette) ... ok
 test_units (test_gridx.T.test_units) ... ok
 test_validation_errors (test_gridx.T.test_validation_errors) ... ok
 test_verify_all (test_gridx.T.test_verify_all) ... ok
+test_contrast_both_themes (test_gridx.Themes.test_contrast_both_themes) ... ok
+test_overlay_theme_option (test_gridx.Themes.test_overlay_theme_option) ... ok
 test_cli_from_svg (test_svgsrc.SvgSource.test_cli_from_svg) ... ok
 test_matches_json_fixture_tokens (test_svgsrc.SvgSource.test_matches_json_fixture_tokens) ... /workspace/uigrid/tests/test_svgsrc.py:11: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/uigrid/fixtures/card-8px.source.svg' mode='r' encoding='UTF-8'>
   doc, skipped = parse_svg(open(SVG).read())
@@ -26,7 +43,7 @@ ok
 test_units_from_root (test_svgsrc.SvgSource.test_units_from_root) ... ok
 
 ----------------------------------------------------------------------
-Ran 14 tests in 0.130s
+Ran 25 tests in 0.161s
 
 OK
 Python 3.13.5

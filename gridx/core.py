@@ -14,21 +14,32 @@ class FixtureError(ValueError):
     pass
 
 
+MIN_ELEMENTS = 3   # minimum elements before a base unit is claimed
+MIN_GUIDES = 3     # minimum distinct column guides before columns are claimed
+MAX_ZOOM = 64.0
+MIN_ZOOM = 1.0 / 64
+
+
+def _isnum(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
 def validate(doc):
     errs = []
     if not isinstance(doc, dict):
         raise FixtureError(["fixture must be an object"])
-    if doc.get("schema_version") != SCHEMA_VERSION:
-        errs.append("schema_version must be 1")
+    sv = doc.get("schema_version")
+    if isinstance(sv, bool) or sv != SCHEMA_VERSION:
+        errs.append("schema_version must be the integer 1")
     unit = doc.get("unit")
-    if unit not in UNITS_TO_PX:
+    if not isinstance(unit, str) or unit not in UNITS_TO_PX:
         errs.append("unit must be one of px, pt, mm (got %r)" % (unit,))
     zoom = doc.get("zoom", 1.0)
-    if not isinstance(zoom, (int, float)) or isinstance(zoom, bool) or zoom <= 0:
-        errs.append("zoom must be a positive number")
+    if not _isnum(zoom) or not (MIN_ZOOM <= zoom <= MAX_ZOOM):
+        errs.append("zoom must be a finite number in [1/64, 64]")
     fr = doc.get("frame")
-    if not (isinstance(fr, dict) and all(isinstance(fr.get(k), (int, float)) and fr.get(k) > 0 for k in ("width", "height"))):
-        errs.append("frame.width and frame.height must be positive numbers")
+    if not (isinstance(fr, dict) and all(_isnum(fr.get(k)) and fr.get(k) > 0 for k in ("width", "height"))):
+        errs.append("frame.width and frame.height must be positive finite numbers")
     els = doc.get("elements")
     if not isinstance(els, list) or not els:
         errs.append("elements must be a non-empty list")
@@ -45,15 +56,19 @@ def validate(doc):
             ids.add(e["id"])
         for k in ("x", "y", "w", "h"):
             v = e.get(k)
-            if not isinstance(v, (int, float)) or isinstance(v, bool):
-                errs.append("elements[%d].%s must be a number" % (i, k))
-        if isinstance(e.get("w"), (int, float)) and e["w"] <= 0 or isinstance(e.get("h"), (int, float)) and e["h"] <= 0:
-            errs.append("elements[%d] has non-positive size" % i)
-        if "font_size" in e and not (isinstance(e["font_size"], (int, float)) and e["font_size"] > 0):
-            errs.append("elements[%d].font_size must be positive" % i)
+            if not _isnum(v):
+                errs.append("elements[%d].%s must be a finite number" % (i, k))
+            elif v < 0 or (k in ("w", "h") and v == 0):
+                errs.append("elements[%d].%s must be %s" % (i, k, "> 0" if k in ("w", "h") else ">= 0"))
+        if "font_size" in e and not (_isnum(e["font_size"]) and e["font_size"] > 0):
+            errs.append("elements[%d].font_size must be a positive finite number" % i)
     tol = doc.get("tolerance", 0.5)
-    if not isinstance(tol, (int, float)) or tol < 0:
-        errs.append("tolerance must be >= 0")
+    if not _isnum(tol) or tol < 0:
+        errs.append("tolerance must be a finite number >= 0")
+    elif isinstance(unit, str) and unit in UNITS_TO_PX and _isnum(zoom) and zoom > 0:
+        tol_px = tol * UNITS_TO_PX[unit] / zoom
+        if tol_px >= min(CANDIDATE_BASES) / 2:
+            errs.append("tolerance %.4gpx must be < %gpx (half the smallest candidate base)" % (tol_px, min(CANDIDATE_BASES) / 2))
     if errs:
         raise FixtureError(errs)
     return doc
@@ -80,9 +95,9 @@ def _residual(v, base):
     return min(m, base - m)
 
 
-def baseline_hypotheses(values, tol):
+def baseline_hypotheses(values, tol, n_elements=None):
     """Score each candidate base unit by fraction of values within tol of a multiple."""
-    vals = [v for v in values if v > 0]
+    vals = [v for v in values if v != 0]  # zero is a multiple of every base: carries no evidence
     hyps = []
     for b in CANDIDATE_BASES:
         res = [_residual(v, b) for v in vals]
@@ -91,6 +106,9 @@ def baseline_hypotheses(values, tol):
                      "mean_residual": round(sum(res) / len(res), 4) if res else None})
     hyps.sort(key=lambda h: (-h["fit"], -h["base_px"]))
     full = [h for h in hyps if h["fit"] == 1.0]
+    if n_elements is not None and n_elements < MIN_ELEMENTS:
+        return {"verdict": "insufficient", "base_px": None, "competing": [], "candidates": hyps, "n_values": len(vals),
+                "note": "fewer than %d elements; no base unit is claimed" % MIN_ELEMENTS}
     if full:
         best = max(full, key=lambda h: h["base_px"])
         # Ambiguous if another exact base is not a divisor of the best (genuinely competing).
@@ -118,9 +136,10 @@ def columns(norm):
     lefts = _cluster([e["x"] for e in norm["elements"]], tol)
     guides = [round(sum(g) / len(g), 4) for g in lefts]
     steps = [round(b - a, 4) for a, b in zip(guides, guides[1:])]
-    regular = len(steps) >= 1 and (max(steps) - min(steps) <= tol)
+    regular = len(guides) >= MIN_GUIDES and (max(steps) - min(steps) <= tol)
     margin = guides[0] if guides else None
     return {"guides_px": guides, "steps_px": steps, "regular": regular,
+            "evidence": "sufficient" if len(guides) >= MIN_GUIDES else "insufficient",
             "pitch_px": round(sum(steps) / len(steps), 4) if regular else None,
             "margin_left_px": margin,
             "misaligned": [e["id"] for e in norm["elements"]
@@ -154,7 +173,7 @@ def analyse(doc):
     for e in n["elements"]:
         vals += [e["x"], e["y"], e["w"], e["h"]]
     gaps = spacing(n)
-    base = baseline_hypotheses(vals + gaps, n["tolerance"])
+    base = baseline_hypotheses(vals + gaps, n["tolerance"], len(n["elements"]))
     cols = columns(n)
     ref = base["base_px"] or base["candidates"][0]["base_px"]
     off = [e["id"] for e in n["elements"]
@@ -201,27 +220,50 @@ def css_tokens(r):
     return "\n".join(lines) + "\n"
 
 
-def svg_overlay(doc, r):
+THEMES = {  # from Ilghar/ilghar-studio src/styles.css (:root and .dark)
+    "light": {"canvas": "#f3f1f6", "ink": "#4a3a5c", "muted": "#7a688c", "subtle": "#a394ae", "accent": "#c97a98"},
+    "dark": {"canvas": "#4a434c", "ink": "#f4eef3", "muted": "#cbbdce", "subtle": "#9a8a9c", "accent": "#e8a8bc"},
+}
+
+
+def svg_overlay(doc, r, theme="light"):
+    if theme not in THEMES:
+        raise ValueError("theme must be light or dark")
+    T = THEMES[theme]
     n = normalise(doc)
     W, H = n["frame"]["width"], n["frame"]["height"]
     p = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %g %g" width="%g" height="%g">' % (W, H, W, H),
-         '<rect width="100%" height="100%" fill="#f3f1f6"/>']
+         '<rect width="100%%" height="100%%" fill="%s"/>' % T["canvas"]]
     b = r["base_unit"]["base_px"] if r["base_unit"]["verdict"] == "supported" else None
     if b:
         y = 0
         while y <= H:
-            p.append('<line x1="0" y1="%g" x2="%g" y2="%g" stroke="#a394ae" stroke-width="0.25" opacity="0.5"/>' % (y, W, y))
+            p.append('<line x1="0" y1="%g" x2="%g" y2="%g" stroke="%s" stroke-width="0.25" opacity="0.5"/>' % (y, W, y, T["subtle"]))
             y += b
     for g in r["columns"]["guides_px"]:
-        p.append('<line x1="%g" y1="0" x2="%g" y2="%g" stroke="#c97a98" stroke-width="1"/>' % (g, g, H))
+        p.append('<line x1="%g" y1="0" x2="%g" y2="%g" stroke="%s" stroke-width="1"/>' % (g, g, H, T["accent"]))
     mis = set(r["columns"]["misaligned"])
     for e in n["elements"]:
-        col = "#c97a98" if e["id"] in mis else "#4a3a5c"
-        p.append('<rect x="%g" y="%g" width="%g" height="%g" fill="none" stroke="%s" stroke-width="1.5"/>' % (e["x"], e["y"], e["w"], e["h"], col))
-        p.append('<text x="%g" y="%g" font-family="Jost, sans-serif" font-size="9" fill="%s">%s</text>' % (e["x"] + 3, e["y"] + 11, col, e["id"]))
+        bad = e["id"] in mis
+        # flags never rely on hue alone: dashed ink stroke + accent tint + text label
+        p.append('<rect x="%g" y="%g" width="%g" height="%g" fill="%s" fill-opacity="%s" stroke="%s" stroke-width="1.5"%s/>' % (
+            e["x"], e["y"], e["w"], e["h"], T["accent"], "0.35" if bad else "0", T["ink"], ' stroke-dasharray="4 2"' if bad else ""))
+        p.append('<text x="%g" y="%g" font-family="Jost, sans-serif" font-size="9" fill="%s">%s</text>' % (
+            e["x"] + 3, e["y"] + 11, T["ink"], e["id"] + (" \u2715 misaligned" if bad else "")))
     p.append("</svg>")
+    p[0] = p[0].replace("<svg ", '<svg data-theme="%s" ' % theme, 1)
     return "\n".join(p) + "\n"
 
 
 def dumps(obj):
     return json.dumps(obj, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+
+
+def contrast(a, b):
+    """WCAG 2.x contrast ratio between two #rrggbb colours."""
+    def lum(h):
+        c = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        c = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+    hi, lo = sorted([lum(a), lum(b)], reverse=True)
+    return (hi + 0.05) / (lo + 0.05)

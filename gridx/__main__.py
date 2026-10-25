@@ -5,7 +5,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog="gridx", description="Measured UI grid & token extractor (ilghar.studio)")
     sub = ap.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("analyse", help="analyse a measured-coordinates JSON fixture")
-    a.add_argument("fixture"); a.add_argument("--from-svg", action="store_true", help="input is an SVG with rect/text boxes"); a.add_argument("--svg"); a.add_argument("--css")
+    a.add_argument("fixture"); a.add_argument("--from-svg", action="store_true", help="input is an SVG with rect/text boxes"); a.add_argument("--svg"); a.add_argument("--theme", choices=["light", "dark"], default="light"); a.add_argument("--css")
     sub.add_parser("validate").add_argument("fixture")
     g = sub.add_parser("fixtures", help="write deterministic synthetic fixtures"); g.add_argument("outdir")
     sub.add_parser("verify", help="check analyser against known synthetic geometry")
@@ -18,11 +18,16 @@ def main(argv=None):
     if ns.cmd == "verify":
         from .verify import run; res = run(); sys.stdout.write(core.dumps(res)); return 0 if res["passed"] == res["total"] else 1
     skipped = None
-    if getattr(ns, "from_svg", False):
-        from .svgsrc import parse_svg
-        doc, skipped = parse_svg(open(ns.fixture, encoding="utf-8").read())
-    else:
-        doc = json.load(open(ns.fixture, encoding="utf-8"))
+    try:
+        with open(ns.fixture, encoding="utf-8") as fh:
+            raw = fh.read()
+        if getattr(ns, "from_svg", False):
+            from .svgsrc import parse_svg
+            doc, skipped = parse_svg(raw)
+        else:
+            doc = json.loads(raw, parse_constant=lambda c: float(c))
+    except (OSError, ValueError, UnicodeDecodeError) as e:
+        sys.stdout.write(core.dumps({"valid": False, "errors": ["cannot read input: %s" % e]})); return 2
     try:
         core.validate(doc)
     except core.FixtureError as e:
@@ -32,7 +37,7 @@ def main(argv=None):
     r = core.analyse(doc)
     if skipped is not None:
         r["svg_skipped"] = skipped
-    if ns.svg: open(ns.svg, "w").write(core.svg_overlay(doc, r))
+    if ns.svg: open(ns.svg, "w").write(core.svg_overlay(doc, r, ns.theme))
     if ns.css: open(ns.css, "w").write(core.css_tokens(r))
     sys.stdout.write(core.dumps(r)); return 0
 
