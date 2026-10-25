@@ -110,6 +110,20 @@ class Adversarial(unittest.TestCase):
         self.assertEqual(r["base_unit"]["verdict"], "insufficient"); self.assertFalse(r["exact"])
 
 
+class Grouping(unittest.TestCase):
+    def test_order_independent_and_no_chaining(self):
+        import random
+        d = fixtures.card_8px()
+        for e in d["elements"][3:]:
+            e["x"] = 24.4  # within tol of 24 but near the old tol/2 boundary
+        base = core.dumps(core.analyse(d)["columns"])
+        for seed in range(5):
+            random.Random(seed).shuffle(d["elements"])
+            self.assertEqual(core.dumps(core.analyse(d)["columns"]), base)
+        n = {"tolerance": 0.5, "elements": [{"id": str(i), "x": v} for i, v in enumerate([0, 0.4, 0.8, 1.2])]}
+        self.assertEqual(len(core.columns(n)["guides_px"]), 2)  # chain 0..1.2 no longer collapses into one guide
+
+
 class Themes(unittest.TestCase):
     def test_contrast_both_themes(self):
         for name, T in core.THEMES.items():

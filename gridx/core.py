@@ -123,7 +123,7 @@ def baseline_hypotheses(values, tol, n_elements=None):
 def _cluster(vals, tol):
     groups = []
     for v in sorted(vals):
-        if groups and v - groups[-1][-1] <= tol:
+        if groups and v - groups[-1][0] <= tol:  # anchored to cluster start: no chaining
             groups[-1].append(v)
         else:
             groups.append([v])
@@ -143,7 +143,7 @@ def columns(norm):
             "pitch_px": round(sum(steps) / len(steps), 4) if regular else None,
             "margin_left_px": margin,
             "misaligned": [e["id"] for e in norm["elements"]
-                           if min(abs(e["x"] - g) for g in guides) > tol / 2]}
+                           if min(abs(e["x"] - g) for g in guides) > tol]}
 
 
 def spacing(norm):

@@ -31,6 +31,7 @@ flowchart LR
 python -m gridx fixtures fixtures/          # write deterministic synthetic fixtures
 python -m gridx analyse fixtures/card-8px.json --svg out.svg --css tokens.css
 python -m gridx analyse --from-svg fixtures/card-8px.source.svg   # read <rect>/<text> boxes
+python -m gridx analyse fixtures/card-misaligned.json --theme dark --svg out-dark.svg
 python -m gridx validate my-layout.json     # exit 2 + every schema error listed
 python -m gridx verify                      # 7 known-geometry checks
 python -m unittest discover -s tests
@@ -56,6 +57,20 @@ Nudge one card by 3px (`card-misaligned`) and the verdict flips: base unit `unsu
 | Clean | Misaligned |
 |---|---|
 | ![](examples/card-8px.svg) | ![](examples/card-misaligned.svg) |
+
+## Evidence rules
+- Inputs must be finite numbers: NaN, ±inf, negatives (x/y/w/h) and booleans are validation errors (exit 2), never silently dropped.
+- `unit` must be the string `px`, `pt` or `mm`; `zoom` must be finite in [1/64, 64].
+- `tolerance` must be finite, ≥ 0 and below 1px after conversion (half the smallest candidate base), so no base can fit trivially.
+- A base unit needs **≥ 3 elements**; otherwise the verdict is `insufficient`. Columns need **≥ 3 distinct guides**; otherwise `columns.evidence` is `insufficient` and no `grid.*` tokens are emitted.
+- Column guides are clustered from the cluster start (no chaining) and an element is misaligned when it is more than `tolerance` from every guide, so results do not depend on element order.
+- Missing or unreadable files exit 2 with `cannot read input`, never a traceback.
+
+## Themes
+`--theme light|dark` renders the overlay with the ilghar.studio tokens (`:root` and `.dark` in `ilghar-studio/src/styles.css`). Misaligned elements are dashed, tinted and labelled — never hue-only. The site follows `prefers-color-scheme` and has a persisted, `aria-pressed` toggle. Known palette limits: light `--muted` #7a688c is 4.47:1 on canvas (large text only); light accent #c97a98 is 2.79:1 (decorative/guides only).
+
+## Deprecated files
+`site/card-8px.svg` and `site/card-misaligned.svg` are deprecated and unused; the site uses `site/*.light.svg` / `site/*.dark.svg`. They remain only because this repo is never cleaned up destructively without review.
 
 ## SVG source
 `--from-svg` reads `<rect>` boxes (with `translate()` groups) and `<text>` boxes that declare their box via `data-top`/`data-w`/`data-h`. Rotated/scaled elements and text without a declared box are listed under `svg_skipped` — never estimated. The bundled SVG yields exactly the same tokens as the JSON fixture.
