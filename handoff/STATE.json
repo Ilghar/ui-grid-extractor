@@ -1,0 +1,13 @@
+{
+  "project": "measured-ui-grid-extractor",
+  "creator": "ilghar.studio",
+  "status": "first-slice",
+  "updated": "2026-10-25T14:10+01:00",
+  "visibility": "private",
+  "sources_read": ["Drive PROJECT_INDEX.json (project 05)", "Drive BRIEF.md", "Drive project.json", "Ilghar/ilghar-studio src/styles.css"],
+  "palette_verified": {"canvas": "#f3f1f6", "surface": "#fffcfe", "ink": "#4a3a5c", "muted": "#7a688c", "subtle": "#a394ae", "accent": "#c97a98", "line": "#e4dde8", "font_sans": "Jost", "font_display": "Nunito Sans"},
+  "done": ["schema v1 + validation", "px/pt/mm + zoom normalisation", "base-unit hypotheses with residuals (supported/ambiguous/unsupported)", "column guides + misalignment", "modular type scale", "JSON/CSS/SVG export", "SVG rect/text source (--from-svg), skips undeclared geometry", "verify: 7/7 known-geometry checks"],
+  "tests": {"unittest": "14/14 pass", "python": "3.13.5"},
+  "not_done": ["HTML/CSS computed-box import", "baseline/cap-height grid", "multi-breakpoint and 9:16 safe areas", "interactive overlay viewer", "residual uncertainty intervals", "hand-measured corpus with re-measurement", "earlier analyzer skill: runnable code never recovered"],
+  "constraints": ["no OCR/screenshot inference", "self-authored fixtures only", "no paid APIs", "no force push", "no licence granted yet"]
+}

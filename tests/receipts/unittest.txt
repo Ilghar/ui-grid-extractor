@@ -1,8 +1,8 @@
 test_ambiguous_preserved (test_gridx.T.test_ambiguous_preserved) ... ok
-test_cli (test_gridx.T.test_cli) ... /workspace/uigrid/tests/test_gridx.py:46: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpqj0r1f2j/t.css' mode='r' encoding='UTF-8'>
+test_cli (test_gridx.T.test_cli) ... /workspace/uigrid/tests/test_gridx.py:46: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwidjn5zm/t.css' mode='r' encoding='UTF-8'>
   self.assertIn("--grid-pitch: 112px;", open(os.path.join(td, "t.css")).read())
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
-/workspace/uigrid/tests/test_gridx.py:47: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpqj0r1f2j/bad.json' mode='w' encoding='UTF-8'>
+/workspace/uigrid/tests/test_gridx.py:47: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwidjn5zm/bad.json' mode='w' encoding='UTF-8'>
   json.dump({"unit": "px"}, open(os.path.join(td, "bad.json"), "w"))
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ok
@@ -13,8 +13,20 @@ test_svg_palette (test_gridx.T.test_svg_palette) ... ok
 test_units (test_gridx.T.test_units) ... ok
 test_validation_errors (test_gridx.T.test_validation_errors) ... ok
 test_verify_all (test_gridx.T.test_verify_all) ... ok
+test_cli_from_svg (test_svgsrc.SvgSource.test_cli_from_svg) ... ok
+test_matches_json_fixture_tokens (test_svgsrc.SvgSource.test_matches_json_fixture_tokens) ... /workspace/uigrid/tests/test_svgsrc.py:11: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/uigrid/fixtures/card-8px.source.svg' mode='r' encoding='UTF-8'>
+  doc, skipped = parse_svg(open(SVG).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_rejects_non_svg_and_bad_length (test_svgsrc.SvgSource.test_rejects_non_svg_and_bad_length) ... ok
+test_skips_not_guesses (test_svgsrc.SvgSource.test_skips_not_guesses) ... /workspace/uigrid/tests/test_svgsrc.py:14: ResourceWarning: unclosed file <_io.TextIOWrapper name='/workspace/uigrid/fixtures/card-8px.source.svg' mode='r' encoding='UTF-8'>
+  _, skipped = parse_svg(open(SVG).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_units_from_root (test_svgsrc.SvgSource.test_units_from_root) ... ok
 
 ----------------------------------------------------------------------
-Ran 9 tests in 0.070s
+Ran 14 tests in 0.130s
 
 OK
+Python 3.13.5

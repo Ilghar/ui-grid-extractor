@@ -30,6 +30,7 @@ flowchart LR
 ```sh
 python -m gridx fixtures fixtures/          # write deterministic synthetic fixtures
 python -m gridx analyse fixtures/card-8px.json --svg out.svg --css tokens.css
+python -m gridx analyse --from-svg fixtures/card-8px.source.svg   # read <rect>/<text> boxes
 python -m gridx validate my-layout.json     # exit 2 + every schema error listed
 python -m gridx verify                      # 7 known-geometry checks
 python -m unittest discover -s tests
@@ -55,6 +56,9 @@ Nudge one card by 3px (`card-misaligned`) and the verdict flips: base unit `unsu
 | Clean | Misaligned |
 |---|---|
 | ![](examples/card-8px.svg) | ![](examples/card-misaligned.svg) |
+
+## SVG source
+`--from-svg` reads `<rect>` boxes (with `translate()` groups) and `<text>` boxes that declare their box via `data-top`/`data-w`/`data-h`. Rotated/scaled elements and text without a declared box are listed under `svg_skipped` — never estimated. The bundled SVG yields exactly the same tokens as the JSON fixture.
 
 ## Input schema (v1)
 `schema_version: 1`, `unit: px|pt|mm`, `zoom > 0` (default 1), `tolerance ≥ 0` (input units, default 0.5), `frame {width,height}`, `elements[] {id (unique), x, y, w>0, h>0, font_size?, role?}`.
