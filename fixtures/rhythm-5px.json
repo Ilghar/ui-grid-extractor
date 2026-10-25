@@ -1,0 +1,37 @@
+{
+  "elements": [
+    {
+      "h": 25,
+      "id": "a",
+      "w": 35,
+      "x": 15,
+      "y": 15
+    },
+    {
+      "h": 10,
+      "id": "b",
+      "w": 65,
+      "x": 15,
+      "y": 55
+    },
+    {
+      "h": 35,
+      "id": "c",
+      "w": 45,
+      "x": 15,
+      "y": 85
+    }
+  ],
+  "frame": {
+    "height": 140,
+    "width": 120
+  },
+  "name": "synthetic/5px-rhythm",
+  "schema_version": 1,
+  "tolerance": 0.5,
+  "truth": {
+    "base_px": 5
+  },
+  "unit": "px",
+  "zoom": 1
+}

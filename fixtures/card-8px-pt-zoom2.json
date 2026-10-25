@@ -1,0 +1,79 @@
+{
+  "elements": [
+    {
+      "h": 192.0,
+      "id": "card0",
+      "role": "card",
+      "w": 144.0,
+      "x": 36.0,
+      "y": 144.0
+    },
+    {
+      "h": 192.0,
+      "id": "card1",
+      "role": "card",
+      "w": 144.0,
+      "x": 204.0,
+      "y": 144.0
+    },
+    {
+      "h": 192.0,
+      "id": "card2",
+      "role": "card",
+      "w": 144.0,
+      "x": 372.0,
+      "y": 144.0
+    },
+    {
+      "font_size": 37.5,
+      "h": 60.0,
+      "id": "title",
+      "role": "heading",
+      "w": 480.0,
+      "x": 36.0,
+      "y": 48.0
+    },
+    {
+      "font_size": 30.0,
+      "h": 36.0,
+      "id": "lead",
+      "role": "text",
+      "w": 480.0,
+      "x": 36.0,
+      "y": 372.0
+    },
+    {
+      "font_size": 24.0,
+      "h": 72.0,
+      "id": "body",
+      "role": "text",
+      "w": 480.0,
+      "x": 36.0,
+      "y": 444.0
+    },
+    {
+      "font_size": 19.2,
+      "h": 24.0,
+      "id": "meta",
+      "role": "caption",
+      "w": 300.0,
+      "x": 36.0,
+      "y": 552.0
+    }
+  ],
+  "frame": {
+    "height": 600.0,
+    "width": 564.0
+  },
+  "name": "synthetic/card-8px@pt-zoom2",
+  "schema_version": 1,
+  "tolerance": 0.5,
+  "truth": {
+    "base_px": 8,
+    "columns": 3,
+    "margin_px": 24,
+    "pitch_px": 112
+  },
+  "unit": "pt",
+  "zoom": 2
+}
