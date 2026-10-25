@@ -2,12 +2,60 @@
   "project": "measured-ui-grid-extractor",
   "creator": "ilghar.studio",
   "status": "first-slice",
-  "updated": "2026-10-25T14:10+01:00",
+  "updated": "2026-10-25T14:09+01:00",
   "visibility": "private",
-  "sources_read": ["Drive PROJECT_INDEX.json (project 05)", "Drive BRIEF.md", "Drive project.json", "Ilghar/ilghar-studio src/styles.css"],
-  "palette_verified": {"canvas": "#f3f1f6", "surface": "#fffcfe", "ink": "#4a3a5c", "muted": "#7a688c", "subtle": "#a394ae", "accent": "#c97a98", "line": "#e4dde8", "font_sans": "Jost", "font_display": "Nunito Sans"},
-  "done": ["schema v1 + validation", "px/pt/mm + zoom normalisation", "base-unit hypotheses with residuals (supported/ambiguous/unsupported)", "column guides + misalignment", "modular type scale", "JSON/CSS/SVG export", "SVG rect/text source (--from-svg), skips undeclared geometry", "verify: 7/7 known-geometry checks"],
-  "tests": {"unittest": "14/14 pass", "python": "3.13.5"},
-  "not_done": ["HTML/CSS computed-box import", "baseline/cap-height grid", "multi-breakpoint and 9:16 safe areas", "interactive overlay viewer", "residual uncertainty intervals", "hand-measured corpus with re-measurement", "earlier analyzer skill: runnable code never recovered"],
-  "constraints": ["no OCR/screenshot inference", "self-authored fixtures only", "no paid APIs", "no force push", "no licence granted yet"]
+  "sources_read": [
+    "Drive PROJECT_INDEX.json (project 05)",
+    "Drive BRIEF.md",
+    "Drive project.json",
+    "Ilghar/ilghar-studio src/styles.css"
+  ],
+  "palette_verified": {
+    "canvas": "#f3f1f6",
+    "surface": "#fffcfe",
+    "ink": "#4a3a5c",
+    "muted": "#7a688c",
+    "subtle": "#a394ae",
+    "accent": "#c97a98",
+    "line": "#e4dde8",
+    "font_sans": "Jost",
+    "font_display": "Nunito Sans"
+  },
+  "done": [
+    "schema v1 + validation",
+    "px/pt/mm + zoom normalisation",
+    "base-unit hypotheses with residuals (supported/ambiguous/unsupported)",
+    "column guides + misalignment",
+    "modular type scale",
+    "JSON/CSS/SVG export",
+    "SVG rect/text source (--from-svg), skips undeclared geometry",
+    "verify: 7/7 known-geometry checks",
+    "adversarial fixes: NaN/inf/negative/bool rejected, bounded tolerance and zoom, clean CLI errors, min evidence (3 elements / 3 guides)",
+    "light/dark themes (studio tokens), --theme overlay, persisted accessible toggle, contrast tests"
+  ],
+  "tests": {
+    "unittest": "25/25 pass",
+    "python": "3.13.5"
+  },
+  "not_done": [
+    "HTML/CSS computed-box import",
+    "baseline/cap-height grid",
+    "multi-breakpoint and 9:16 safe areas",
+    "interactive overlay viewer",
+    "residual uncertainty intervals",
+    "hand-measured corpus with re-measurement",
+    "earlier analyzer skill: runnable code never recovered"
+  ],
+  "constraints": [
+    "no OCR/screenshot inference",
+    "self-authored fixtures only",
+    "no paid APIs",
+    "no force push",
+    "no licence granted yet"
+  ],
+  "known_issues": [
+    "studio light --muted #7a688c is 4.47:1 on canvas (below 4.5 AA for body text); used only for large text",
+    "light accent #c97a98 is 2.79:1 on canvas; overlay flags use dashed ink stroke + text label, not hue alone",
+    "stale site/card-8px.svg and site/card-misaligned.svg remain in repo (connector cannot delete)"
+  ]
 }
