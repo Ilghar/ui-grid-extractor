@@ -21,7 +21,10 @@ def _num(v):
 
 
 def parse_svg(text, tolerance=0.5):
-    root = ET.fromstring(text)
+    try:
+        root = ET.fromstring(text)
+    except ET.ParseError as e:
+        raise ValueError("malformed SVG: %s" % e) from None
     if root.tag not in (NS + "svg", "svg"):
         raise ValueError("root element is not <svg>")
     w, wu = _num(root.get("width"))

@@ -9,7 +9,14 @@ def main(argv=None):
     sub.add_parser("validate").add_argument("fixture")
     g = sub.add_parser("fixtures", help="write deterministic synthetic fixtures"); g.add_argument("outdir")
     sub.add_parser("verify", help="check analyser against known synthetic geometry")
+    t = sub.add_parser("tokens", help="check colours, fonts and 4px spacing against DESIGN_TOKENS.json")
+    t.add_argument("fixture"); t.add_argument("--tokens", default="fixtures/ilghar_studio_DESIGN_TOKENS.json")
     ns = ap.parse_args(argv)
+    if ns.cmd == "tokens":
+        from .tokens import TokenCheck
+        with open(ns.fixture, encoding="utf-8") as fh:
+            res = TokenCheck.check(json.load(fh), TokenCheck.load_tokens(ns.tokens))
+        sys.stdout.write(core.dumps(res)); return 0 if res["ok"] else 1
     if ns.cmd == "fixtures":
         import os; os.makedirs(ns.outdir, exist_ok=True)
         for k, f in fixtures.ALL.items():
@@ -37,8 +44,11 @@ def main(argv=None):
     r = core.analyse(doc)
     if skipped is not None:
         r["svg_skipped"] = skipped
-    if ns.svg: open(ns.svg, "w").write(core.svg_overlay(doc, r, ns.theme))
-    if ns.css: open(ns.css, "w").write(core.css_tokens(r))
+    try:
+        if ns.svg: open(ns.svg, "w", encoding="utf-8").write(core.svg_overlay(doc, r, ns.theme))
+        if ns.css: open(ns.css, "w", encoding="utf-8").write(core.css_tokens(r))
+    except OSError as e:
+        sys.stdout.write(core.dumps({"valid": True, "errors": ["cannot write output: %s" % e]})); return 2
     sys.stdout.write(core.dumps(r)); return 0
 
 if __name__ == "__main__":

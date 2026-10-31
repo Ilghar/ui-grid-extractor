@@ -1,0 +1,66 @@
+import copy, json, os, subprocess, sys, unittest
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+from gridx.tokens import TokenCheck
+
+TOKENS = os.path.join(ROOT, "fixtures", "ilghar_studio_DESIGN_TOKENS.json")
+CARD = os.path.join(ROOT, "fixtures", "tokens-card.json")
+
+def card():
+    with open(CARD, encoding="utf-8") as fh:
+        return json.load(fh)
+
+class TokenCheckTests(unittest.TestCase):
+    def setUp(self):
+        self.tokens = TokenCheck.load_tokens(TOKENS)
+
+    def test_palette_and_fonts_come_from_the_tokens_file(self):
+        pal = TokenCheck.palette(self.tokens)
+        self.assertIn("#c97a98", pal); self.assertIn("#e8a8bc", pal); self.assertIn("#4a434c", pal)
+        self.assertEqual(TokenCheck.font_families(self.tokens), {"Jost", "Nunito Sans"})
+
+    def test_tailwind_step_is_4px_default(self):
+        self.assertEqual(TokenCheck.TAILWIND_DEFAULT_SPACING_PX, 4)
+
+    def test_pass_case(self):
+        r = TokenCheck.check(card(), self.tokens)
+        self.assertTrue(r["ok"], r); self.assertEqual(r["errors"], [])
+
+    def test_off_palette_colour_fails(self):
+        d = card(); d["elements"][1]["color"] = "#000000"
+        r = TokenCheck.check(d, self.tokens)
+        self.assertFalse(r["ok"])
+        self.assertEqual([(e["id"], e["rule"], e["field"]) for e in r["errors"]], [("title", "colour", "color")])
+
+    def test_colour_case_and_shorthand_normalised(self):
+        d = card(); d["elements"][1]["color"] = "#4A3A5C"
+        self.assertTrue(TokenCheck.check(d, self.tokens)["ok"])
+        d["elements"][1]["color"] = "#fff"
+        self.assertFalse(TokenCheck.check(d, self.tokens)["ok"])
+
+    def test_wrong_font_fails(self):
+        d = card(); d["elements"][2]["font_family"] = "Helvetica, Jost"
+        r = TokenCheck.check(d, self.tokens)
+        self.assertEqual([(e["id"], e["rule"]) for e in r["errors"]], [("body", "font")])
+
+    def test_off_step_spacing_fails(self):
+        d = card(); d["elements"][3]["y"] = 242; d["elements"][3]["w"] = 130
+        r = TokenCheck.check(d, self.tokens)
+        self.assertEqual(sorted((e["id"], e["field"]) for e in r["errors"] if e["rule"] == "spacing"),
+                         [("button", "w"), ("button", "y")])
+
+    def test_cli_pass_and_fail_exit_codes(self):
+        run = lambda p: subprocess.run([sys.executable, "-m", "gridx", "tokens", p, "--tokens", TOKENS],
+                                        cwd=ROOT, capture_output=True, text=True)
+        ok = run(CARD); self.assertEqual(ok.returncode, 0, ok.stderr); self.assertTrue(json.loads(ok.stdout)["ok"])
+        import tempfile
+        d = card(); d["elements"][0]["background"] = "#ffffff"
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+            json.dump(d, fh)
+        try:
+            bad = run(fh.name); self.assertEqual(bad.returncode, 1); self.assertFalse(json.loads(bad.stdout)["ok"])
+        finally:
+            os.unlink(fh.name)
+
+if __name__ == "__main__":
+    unittest.main()
