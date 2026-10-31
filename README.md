@@ -1,13 +1,15 @@
 # Measured UI Grid Extractor
 
-**Measure the grid. Don't assume it.** — by ilghar.studio
+**Measure the grid instead of assuming it.** By ilghar.studio.
 
-Designers are told "it's an 8pt grid" about layouts that were never built on one. This tool turns **measured element coordinates** into a grid hypothesis, residuals and design tokens — and refuses to claim a grid, a column system or a modular type scale that the measurements don't support.
+Designers are told "it's an 8pt grid" about layouts that were never built on one. This tool turns **measured element coordinates** into a proposed grid, how far each box is off it, and design tokens. It won't report a grid, column system or modular type scale the measurements don't support.
+
+It also checks a layout against the ilghar.studio design tokens: palette colors, fonts and the 4px spacing step. See [Check a layout against the studio tokens](#check-a-layout-against-the-studio-tokens).
 
 ## What it does
 Give it a JSON list of measured boxes (from your own design file, a spec, or a synthetic fixture). It:
 
-1. **Normalises units** — px, pt (96/72) and mm (96/25.4), dividing out zoom, so a pt measurement at 200% and a px measurement at 100% produce identical tokens.
+1. **Converts units** to CSS px: px, pt (96/72) and mm (96/25.4), dividing out zoom, so a pt measurement at 200% and a px measurement at 100% produce identical tokens.
 2. **Tests base units** 2, 3, 4, 5, 6, 8, 10, 12 and 16px against every coordinate, size and vertical gap; reports fit and residuals for each candidate. Verdict is `supported`, `ambiguous` (e.g. both 4 and 10 fit — neither is chosen silently) or `unsupported` (no grid is claimed).
 3. **Finds column guides** from left edges, derives pitch and margin if regular, and **flags misaligned elements** by id.
 4. **Detects a modular type scale** (e.g. 12.8 / 16 / 20 / 25 → ratio 1.25) or says it is non-modular.
@@ -58,11 +60,11 @@ Nudge one card by 3px (`card-misaligned`) and the verdict flips: base unit `unsu
 
 `python3 -m gridx tokens <layout.json>` checks each element of a layout against `fixtures/ilghar_studio_DESIGN_TOKENS.json`, the ilghar.studio design tokens taken from the site's `src/styles.css` (source note in `fixtures/ilghar_studio_DESIGN_TOKENS.SOURCE.md`).
 
-- **Colour:** `color`, `background` and `border_color` must be one of the light or dark palette colours.
+- **Color:** `color`, `background` and `border_color` must be one of the light or dark palette colors.
 - **Font:** the first family in `font_family` must be Jost or Nunito Sans.
 - **Spacing:** `x`, `y`, `w` and `h` must be multiples of 4px. This is Tailwind's default spacing step (0.25rem), which the site uses unchanged. It is not a studio token; the studio defines no spacing tokens.
 
-It exits 0 when everything passes and 1 otherwise. Output for a layout with an off-palette colour, a wrong font and a 242px offset:
+It exits 0 when everything passes and 1 otherwise. Output for a layout with an off-palette color, a wrong font and a 242px offset:
 
 ```
 python3 -m gridx tokens fixtures/tokens-card.json   # passes, exit 0
@@ -87,7 +89,7 @@ python3 -m gridx tokens bad.json                     # exit 1
 - Missing, unreadable or malformed files (JSON or SVG) exit 2 with `cannot read input`; an unwritable `--svg`/`--css` path exits 2 with `cannot write output` — never a traceback.
 
 ## Themes
-`--theme light|dark` renders the overlay with the ilghar.studio tokens (`:root` and `.dark` in `ilghar-studio/src/styles.css`). Misaligned elements are dashed, tinted and labelled — never hue-only. Element ids are XML-escaped and bidi-isolated (U+2068…U+2069) in labels, so RTL ids don't reorder the flag. Baseline lines are omitted when a frame would need more than 4096 of them. The site follows `prefers-color-scheme` and has a persisted, `aria-pressed` toggle. Known palette limits: light `--muted` #7a688c is 4.47:1 on canvas (large text only); light accent #c97a98 is 2.79:1 (decorative/guides only).
+`--theme light|dark` renders the overlay with the ilghar.studio tokens (`:root` and `.dark` in `ilghar-studio/src/styles.css`). Misaligned elements are dashed, tinted and labeled, so color is never the only signal. Element ids are XML-escaped and bidi-isolated (U+2068…U+2069) in labels, so RTL ids don't reorder the flag. Baseline lines are omitted when a frame would need more than 4096 of them. The site follows `prefers-color-scheme` and has a persisted, `aria-pressed` toggle. Known palette limits: light `--muted` #7a688c is 4.47:1 on canvas (large text only); light accent #c97a98 is 2.79:1 (decorative/guides only).
 
 ## SVG source
 `--from-svg` reads `<rect>` boxes (with `translate()` groups) and `<text>` boxes that declare their box via `data-top`/`data-w`/`data-h`. Rotated/scaled elements and text without a declared box are listed under `svg_skipped` — never estimated. The bundled SVG yields exactly the same tokens as the JSON fixture.
