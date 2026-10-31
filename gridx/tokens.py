@@ -5,6 +5,7 @@ Spacing is NOT a studio token: the studio site uses Tailwind CSS v4 without over
 --spacing, so spacing is checked against Tailwind's default step of 0.25rem = 4px.
 """
 import json, re
+from .core import UNITS_TO_PX
 
 class TokenCheck:
     TAILWIND_DEFAULT_SPACING_PX = 4  # Tailwind v4 default --spacing (0.25rem at 16px), not a studio token
@@ -33,6 +34,8 @@ class TokenCheck:
     @staticmethod
     def check(layout, tokens, step=None):
         step = step or TokenCheck.TAILWIND_DEFAULT_SPACING_PX
+        # same conversion as core.normalise: unit -> CSS px, divided by zoom, rounded to 4 dp
+        factor = UNITS_TO_PX[layout.get("unit", "px")] / float(layout.get("zoom", 1.0))
         pal, fams, errors = TokenCheck.palette(tokens), TokenCheck.font_families(tokens), []
         for el in layout.get("elements", []):
             eid = el.get("id", "?")
@@ -43,7 +46,7 @@ class TokenCheck:
                 errors.append({"id": eid, "rule": "font", "field": "font_family", "value": el["font_family"], "expected": sorted(fams)})
             for f in TokenCheck.SPACING_FIELDS:
                 v = el.get(f)
-                if isinstance(v, (int, float)) and v % step:
-                    errors.append({"id": eid, "rule": "spacing", "field": f, "value": v, "expected": "multiple of %gpx (Tailwind default step)" % step})
+                if isinstance(v, (int, float)) and round(v * factor, 4) % step:
+                    errors.append({"id": eid, "rule": "spacing", "field": f, "value": v, "value_px": round(v * factor, 4), "expected": "multiple of %gpx (Tailwind default step)" % step})
         return {"ok": not errors, "errors": errors, "checked": len(layout.get("elements", [])),
                 "spacing_step_px": step, "spacing_source": "Tailwind CSS default --spacing, not a studio token"}

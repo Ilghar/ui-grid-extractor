@@ -3,7 +3,7 @@
  "fonts": {"sans": "\"Jost\", \"Avenir Next\", \"Avenir\", \"Helvetica Neue\", Helvetica, Arial, sans-serif", "display": "\"Nunito Sans\", \"Jost\", \"Avenir Next\", sans-serif",
    "weights": {"Jost": [300, 400, 500, 600, "400 italic"], "Nunito Sans": [600, 700]}, "body_weight": 400, "persian_fallback_added_here": "Vazirmatn, Noto Naskh Arabic (not in studio CSS; added for RTL text)"},
  "light": {"canvas": "#f3f1f6", "surface": "#fffcfe", "ink": "#4a3a5c", "muted": "#7a688c", "subtle": "#a394ae", "accent": "#c97a98", "accent_fg": "#fffafc", "line": "#e4dde8", "ring": "#c97a98"},
- "dark": {"canvas": "#4a434c", "surface": "#5a535c", "ink": "#f4eef3", "muted": "#cbbdce", "subtle": "#9a8a9c", "accent": "#e8a8bc", "accent_fg": "#2c262f", "line": "#4a424c", "ring": "#e8a8bc"},
+ "dark": {"canvas": "#4a434c", "surface": "#5a535c", "ink": "#f4eef3", "muted": "#cbbdce", "subtle": "#cbbdce", "accent": "#e8a8bc", "accent_fg": "#4a434c", "line": "#a394ae", "ring": "#e8a8bc"},
  "shadows": {"frame": "inset 0 1px 0 rgba(255,255,255,.98), inset 0 -1px 0 rgba(74,58,92,.05), 0 2px 3px rgba(74,58,92,.06), 0 10px 18px rgba(74,58,92,.1), 0 28px 44px -8px rgba(74,58,92,.22)",
    "frame_hover": "inset 0 1px 0 #fff, 0 6px 10px rgba(74,58,92,.08), 0 20px 32px rgba(74,58,92,.14), 0 40px 56px -12px rgba(201,122,152,.28)", "plate": "0 1px 0 rgba(255,255,255,.7), 0 6px 18px rgba(74,58,92,.1)"},
  "motion": {"quick": "160ms", "fast": "280ms", "slow": "480ms", "ease_out": "cubic-bezier(0.22, 1, 0.36, 1)", "reduced_motion": "all transitions/animations off, frame lift disabled"},

@@ -14,8 +14,13 @@ def main(argv=None):
     ns = ap.parse_args(argv)
     if ns.cmd == "tokens":
         from .tokens import TokenCheck
-        with open(ns.fixture, encoding="utf-8") as fh:
-            res = TokenCheck.check(json.load(fh), TokenCheck.load_tokens(ns.tokens))
+        try:
+            with open(ns.fixture, encoding="utf-8") as fh:
+                layout = json.loads(fh.read(), parse_constant=lambda c: float(c))
+            toks = TokenCheck.load_tokens(ns.tokens)
+        except (OSError, ValueError, UnicodeDecodeError) as e:
+            sys.stdout.write(core.dumps({"valid": False, "errors": ["cannot read input: %s" % e]})); return 2
+        res = TokenCheck.check(layout, toks)
         sys.stdout.write(core.dumps(res)); return 0 if res["ok"] else 1
     if ns.cmd == "fixtures":
         import os; os.makedirs(ns.outdir, exist_ok=True)
