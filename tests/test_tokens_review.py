@@ -60,3 +60,19 @@ class TokensFixtureIsHousePalette(unittest.TestCase):
         self.assertFalse(pal & {"#9a8a9c", "#2c262f", "#4a424c"}, pal)
 
 if __name__ == "__main__": unittest.main()
+
+
+class TokensElementsShape(unittest.TestCase):
+    def setUp(self): self.tokens = TokenCheck.load_tokens(TOKENS)
+    def test_invalid_collections_are_input_errors(self):
+        import tempfile
+        for layout in ({}, {"elements": None}, {"elements": []}, {"elements": [None]}, {"elements": "x"}, []):
+            with self.subTest(layout=layout):
+                with self.assertRaises(ValueError): TokenCheck.check(layout, self.tokens)
+                with tempfile.TemporaryDirectory() as td:
+                    p = os.path.join(td, "l.json"); open(p, "w").write(json.dumps(layout))
+                    code, out = run("tokens", "--tokens", TOKENS, p)
+                    self.assertEqual(code, 2); self.assertFalse(out["valid"])
+                    self.assertTrue(out["errors"][0].startswith("invalid input:"))
+    def test_valid_card_still_checks(self):
+        self.assertEqual(TokenCheck.check(card(), self.tokens)["checked"], len(card()["elements"]))

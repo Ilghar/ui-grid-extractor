@@ -34,6 +34,15 @@ class TokenCheck:
     @staticmethod
     def check(layout, tokens, step=None):
         step = step or TokenCheck.TAILWIND_DEFAULT_SPACING_PX
+        # same shape rule as core validation: an object with a non-empty list of element objects
+        if not isinstance(layout, dict):
+            raise ValueError("layout must be a JSON object (got %s)" % type(layout).__name__)
+        elements = layout.get("elements")
+        if not isinstance(elements, list) or not elements:
+            raise ValueError("elements must be a non-empty list (got %r)" % (elements,))
+        bad = [i for i, el in enumerate(elements) if not isinstance(el, dict)]
+        if bad:
+            raise ValueError("elements[%d] must be an object" % bad[0])
         # same conversion as core.normalise: unit -> CSS px, divided by zoom, rounded to 4 dp
         unit, zoom = layout.get("unit", "px"), layout.get("zoom", 1.0)
         if not isinstance(unit, str) or unit not in UNITS_TO_PX:
@@ -43,7 +52,7 @@ class TokenCheck:
         factor = UNITS_TO_PX[unit] / float(zoom)
         pal, fams, errors = TokenCheck.palette(tokens), TokenCheck.font_families(tokens), []
         fams_ci = {f.casefold() for f in fams}  # CSS font-family names are case-insensitive
-        for el in layout.get("elements", []):
+        for el in elements:
             eid = el.get("id", "?")
             for f in TokenCheck.COLOUR_FIELDS:
                 if f in el and str(el[f]).lower() not in pal:
@@ -56,5 +65,5 @@ class TokenCheck:
                     errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "a finite number"})
                 elif round(v * factor, 4) % step:
                     errors.append({"id": eid, "rule": "spacing", "field": f, "value": v, "value_px": round(v * factor, 4), "expected": "multiple of %gpx (Tailwind default step)" % step})
-        return {"ok": not errors, "errors": errors, "checked": len(layout.get("elements", [])),
+        return {"ok": not errors, "errors": errors, "checked": len(elements),
                 "spacing_step_px": step, "spacing_source": "Tailwind CSS default --spacing, not a studio token"}
