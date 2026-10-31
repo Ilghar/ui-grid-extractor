@@ -88,3 +88,22 @@ class CodexReviewFixes(unittest.TestCase):
         self.assertNotIn("font", [e["rule"] for e in TokenCheck.check(d, self.tokens)["errors"]])
         d["elements"][2]["font_family"] = "helvetica, sans-serif"
         self.assertIn("font", [e["rule"] for e in TokenCheck.check(d, self.tokens)["errors"]])
+
+class CodexReviewFixes2(unittest.TestCase):
+    def setUp(self):
+        self.tokens = TokenCheck.load_tokens(TOKENS)
+
+    def test_invalid_or_missing_geometry_is_reported(self):
+        for bad in ("242", None, False):
+            d = card(); d["elements"][0]["x"] = bad
+            r = TokenCheck.check(d, self.tokens)
+            self.assertFalse(r["ok"]); self.assertIn("geometry", [e["rule"] for e in r["errors"]])
+        d = card(); del d["elements"][0]["w"]
+        self.assertIn("geometry", [e["rule"] for e in TokenCheck.check(d, self.tokens)["errors"]])
+
+    def test_tiny_coordinate_may_round_to_zero(self):
+        from gridx import core, fixtures
+        d = fixtures.card_8px(); d["elements"][0]["x"] = 0.00001
+        self.assertEqual(core.Bounds.after_normalise(d), [])
+        d["elements"][0]["w"] = 0.00001
+        self.assertTrue(core.Bounds.after_normalise(d))

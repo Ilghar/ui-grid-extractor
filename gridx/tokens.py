@@ -52,7 +52,9 @@ class TokenCheck:
                 errors.append({"id": eid, "rule": "font", "field": "font_family", "value": el["font_family"], "expected": sorted(fams)})
             for f in TokenCheck.SPACING_FIELDS:
                 v = el.get(f)
-                if isinstance(v, (int, float)) and round(v * factor, 4) % step:
+                if not _isnum(v):
+                    errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "a finite number"})
+                elif round(v * factor, 4) % step:
                     errors.append({"id": eid, "rule": "spacing", "field": f, "value": v, "value_px": round(v * factor, 4), "expected": "multiple of %gpx (Tailwind default step)" % step})
         return {"ok": not errors, "errors": errors, "checked": len(layout.get("elements", [])),
                 "spacing_step_px": step, "spacing_source": "Tailwind CSS default --spacing, not a studio token"}

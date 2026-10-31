@@ -93,7 +93,7 @@ class Bounds:
                 v = e[k] * f
                 if not math.isfinite(v):
                     errs.append("elements[%d].%s overflows after unit/zoom conversion" % (i, k))
-                elif e[k] > 0 and round(v, 4) < Bounds.MIN_PX:
+                elif k not in ("x", "y") and e[k] > 0 and round(v, 4) < Bounds.MIN_PX:
                     errs.append("elements[%d].%s rounds to 0px after conversion (must be >= %gpx)" % (i, k, Bounds.MIN_PX))
         if not all(math.isfinite(doc["frame"][k] * f) for k in ("width", "height")):
             errs.append("frame overflows after unit/zoom conversion")
