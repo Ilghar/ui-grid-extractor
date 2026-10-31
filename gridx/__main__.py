@@ -20,7 +20,10 @@ def main(argv=None):
             toks = TokenCheck.load_tokens(ns.tokens)
         except (OSError, ValueError, UnicodeDecodeError) as e:
             sys.stdout.write(core.dumps({"valid": False, "errors": ["cannot read input: %s" % e]})); return 2
-        res = TokenCheck.check(layout, toks)
+        try:
+            res = TokenCheck.check(layout, toks)
+        except ValueError as e:
+            sys.stdout.write(core.dumps({"valid": False, "errors": ["invalid input: %s" % e]})); return 2
         sys.stdout.write(core.dumps(res)); return 0 if res["ok"] else 1
     if ns.cmd == "fixtures":
         import os; os.makedirs(ns.outdir, exist_ok=True)

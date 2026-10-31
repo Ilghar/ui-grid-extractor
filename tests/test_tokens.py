@@ -64,3 +64,27 @@ class TokenCheckTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class CodexReviewFixes(unittest.TestCase):
+    def setUp(self):
+        self.tokens = TokenCheck.load_tokens(TOKENS)
+
+    def test_invalid_unit_or_zoom_is_an_input_error(self):
+        import tempfile
+        for bad in ({"zoom": 0}, {"zoom": "2"}, {"zoom": float("inf")}, {"unit": "em"}):
+            d = card(); d.update(bad)
+            with self.assertRaises(ValueError):
+                TokenCheck.check(d, self.tokens)
+            with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+                fh.write(json.dumps(d).replace("Infinity", "1e999"))
+            r = subprocess.run([sys.executable, "-m", "gridx", "tokens", fh.name, "--tokens", TOKENS],
+                               cwd=ROOT, capture_output=True, text=True)
+            os.unlink(fh.name)
+            self.assertEqual(r.returncode, 2, (bad, r.stderr))
+            self.assertIn("invalid input", r.stdout)
+
+    def test_font_family_match_is_case_insensitive(self):
+        d = card(); d["elements"][2]["font_family"] = "nunito sans, sans-serif"
+        self.assertNotIn("font", [e["rule"] for e in TokenCheck.check(d, self.tokens)["errors"]])
+        d["elements"][2]["font_family"] = "helvetica, sans-serif"
+        self.assertIn("font", [e["rule"] for e in TokenCheck.check(d, self.tokens)["errors"]])
