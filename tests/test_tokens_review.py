@@ -76,3 +76,27 @@ class TokensElementsShape(unittest.TestCase):
                     self.assertTrue(out["errors"][0].startswith("invalid input:"))
     def test_valid_card_still_checks(self):
         self.assertEqual(TokenCheck.check(card(), self.tokens)["checked"], len(card()["elements"]))
+
+
+class TokensValueShapes(unittest.TestCase):
+    def setUp(self): self.tokens = TokenCheck.load_tokens(TOKENS)
+    def test_non_string_font_family_is_a_font_violation(self):
+        for bad in (None, 3, ["Jost"], {}):
+            with self.subTest(bad=bad):
+                d = card(); d["elements"][0]["font_family"] = bad
+                r = TokenCheck.check(d, self.tokens)
+                self.assertFalse(r["ok"])
+                self.assertIn("font", [e["rule"] for e in r["errors"]])
+    def test_invalid_token_file_is_an_input_error(self):
+        import tempfile
+        good = TokenCheck.load_tokens(TOKENS)
+        bads = [{}, [], {"light": None, "dark": {}, "fonts": {}},
+                dict(good, fonts={"sans": None, "display": "Jost"}), dict(good, fonts={"sans": "Jost"}), dict(good, dark=None)]
+        for toks in bads:
+            with self.subTest(toks=str(toks)[:60]):
+                with self.assertRaises(ValueError): TokenCheck.check(card(), toks)
+                with tempfile.TemporaryDirectory() as td:
+                    t = os.path.join(td, "t.json"); open(t, "w").write(json.dumps(toks))
+                    l = os.path.join(td, "l.json"); open(l, "w").write(json.dumps(card()))
+                    code, out = run("tokens", "--tokens", t, l)
+                    self.assertEqual(code, 2); self.assertFalse(out["valid"])

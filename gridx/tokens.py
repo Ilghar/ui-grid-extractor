@@ -16,7 +16,24 @@ class TokenCheck:
     @staticmethod
     def load_tokens(path):
         with open(path, encoding="utf-8") as fh:
-            return json.load(fh)
+            tokens = json.load(fh)
+        TokenCheck.validate_tokens(tokens)
+        return tokens
+
+    @staticmethod
+    def validate_tokens(tokens):
+        # a token file must have light/dark colour objects and sans/display font-stack strings
+        if not isinstance(tokens, dict):
+            raise ValueError("token file must be a JSON object (got %s)" % type(tokens).__name__)
+        for theme in ("light", "dark"):
+            if not isinstance(tokens.get(theme), dict):
+                raise ValueError("token file: %r must be an object of colours (got %r)" % (theme, tokens.get(theme)))
+        fonts = tokens.get("fonts")
+        if not isinstance(fonts, dict):
+            raise ValueError("token file: 'fonts' must be an object (got %r)" % (fonts,))
+        for k in ("sans", "display"):
+            if not isinstance(fonts.get(k), str) or not TokenCheck.first_family(fonts[k]):
+                raise ValueError("token file: fonts.%s must be a non-empty font-stack string (got %r)" % (k, fonts.get(k)))
 
     @staticmethod
     def palette(tokens):
@@ -34,6 +51,7 @@ class TokenCheck:
     @staticmethod
     def check(layout, tokens, step=None):
         step = step or TokenCheck.TAILWIND_DEFAULT_SPACING_PX
+        TokenCheck.validate_tokens(tokens)
         # same shape rule as core validation: an object with a non-empty list of element objects
         if not isinstance(layout, dict):
             raise ValueError("layout must be a JSON object (got %s)" % type(layout).__name__)
@@ -57,7 +75,8 @@ class TokenCheck:
             for f in TokenCheck.COLOUR_FIELDS:
                 if f in el and str(el[f]).lower() not in pal:
                     errors.append({"id": eid, "rule": "colour", "field": f, "value": el[f], "expected": "a colour from DESIGN_TOKENS.json light/dark"})
-            if "font_family" in el and TokenCheck.first_family(el["font_family"]).casefold() not in fams_ci:
+            if "font_family" in el and (not isinstance(el["font_family"], str)
+                                        or TokenCheck.first_family(el["font_family"]).casefold() not in fams_ci):
                 errors.append({"id": eid, "rule": "font", "field": "font_family", "value": el["font_family"], "expected": sorted(fams)})
             for f in TokenCheck.SPACING_FIELDS:
                 v = el.get(f)
