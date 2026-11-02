@@ -4,7 +4,7 @@ Colours and font families come from DESIGN_TOKENS.json (the studio's src/styles.
 Spacing is NOT a studio token: the studio site uses Tailwind CSS v4 without overriding
 --spacing, so spacing is checked against Tailwind's default step of 0.25rem = 4px.
 """
-import json, re
+import json, math, re
 from .core import UNITS_TO_PX, MIN_ZOOM, MAX_ZOOM, _isnum
 
 class TokenCheck:
@@ -82,6 +82,10 @@ class TokenCheck:
                 v = el.get(f)
                 if not _isnum(v):
                     errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "a finite number"})
+                elif v < 0 or (f in ("w", "h") and v == 0):
+                    errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "nonnegative position / positive size"})
+                elif not math.isfinite(v * factor):
+                    errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "a value that stays finite after unit/zoom conversion"})
                 elif round(v * factor, 4) % step:
                     errors.append({"id": eid, "rule": "spacing", "field": f, "value": v, "value_px": round(v * factor, 4), "expected": "multiple of %gpx (Tailwind default step)" % step})
         return {"ok": not errors, "errors": errors, "checked": len(elements),

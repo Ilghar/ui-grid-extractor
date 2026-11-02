@@ -100,3 +100,30 @@ class TokensValueShapes(unittest.TestCase):
                     l = os.path.join(td, "l.json"); open(l, "w").write(json.dumps(card()))
                     code, out = run("tokens", "--tokens", t, l)
                     self.assertEqual(code, 2); self.assertFalse(out["valid"])
+
+
+class CodexReview6589193881(unittest.TestCase):
+    def setUp(self):
+        import json as _j, os as _o
+        root = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+        from gridx.tokens import TokenCheck
+        self.TC, self.tokens = TokenCheck, TokenCheck.load_tokens(_o.path.join(root, "fixtures", "ilghar_studio_DESIGN_TOKENS.json"))
+        self.card = lambda: _j.load(open(_o.path.join(root, "fixtures", "tokens-card.json"), encoding="utf-8"))
+
+    def _rules(self, d):
+        r = self.TC.check(d, self.tokens); return r["ok"], [e["rule"] for e in r["errors"]]
+
+    def test_negative_position_and_zero_size_are_rejected(self):
+        for f, v in (("x", -4), ("y", -8), ("w", 0), ("h", 0)):
+            d = self.card(); d["elements"][0][f] = v
+            ok, rules = self._rules(d)
+            self.assertFalse(ok); self.assertIn("geometry", rules)
+        d = self.card(); d["elements"][0]["x"] = 0
+        self.assertTrue(self._rules(d)[0])
+
+    def test_conversion_overflow_is_rejected_and_output_is_standard_json(self):
+        import json as _j
+        d = self.card(); d["unit"] = "mm"; d["zoom"] = 0.015625; d["elements"][0]["x"] = 1e308
+        r = self.TC.check(d, self.tokens)
+        self.assertFalse(r["ok"]); self.assertIn("geometry", [e["rule"] for e in r["errors"]])
+        _j.dumps(r, allow_nan=False)
