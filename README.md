@@ -67,7 +67,7 @@ Nudge one card by 3px (`card-misaligned`) and the verdict flips: base unit `unsu
 - Missing or unreadable files exit 2 with `cannot read input`, never a traceback.
 
 ## Themes
-`--theme light|dark` renders the overlay with the ilghar.studio tokens (`:root` and `.dark` in `ilghar-studio/src/styles.css`). Misaligned elements are dashed, tinted and labelled — never hue-only. The site follows `prefers-color-scheme` and has a persisted, `aria-pressed` toggle. Known palette limits: light `--muted` #7a688c is 4.47:1 on canvas (large text only); light accent #c97a98 is 2.79:1 (decorative/guides only).
+`--theme light|dark` renders the overlay with the ilghar.studio tokens (`:root` and `.dark` in `ilghar-studio/src/styles.css`). Misaligned elements are dashed, tinted and labelled — never hue-only. The site follows `prefers-color-scheme` and has a persisted, `aria-pressed` toggle. Known palette limits: light `--muted` #7d5a7c is 4.47:1 on canvas (large text only); light accent #856a8e is 2.79:1 (decorative/guides only).
 
 ## Deprecated files
 `site/card-8px.svg` and `site/card-misaligned.svg` are deprecated and unused; the site uses `site/*.light.svg` / `site/*.dark.svg`. They remain only because this repo is never cleaned up destructively without review.

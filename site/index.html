@@ -12,8 +12,8 @@ document.documentElement.classList.toggle("dark",t==="dark");})();</script>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Nunito+Sans:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* tokens from Ilghar/ilghar-studio src/styles.css */
-:root{--canvas:#f3f1f6;--surface:#fffcfe;--ink:#4a3a5c;--muted:#7a688c;--subtle:#a394ae;--accent:#c97a98;--line:#e4dde8;--ring:#c97a98}
-.dark{--canvas:#4a434c;--surface:#5a535c;--ink:#f4eef3;--muted:#cbbdce;--subtle:#9a8a9c;--accent:#e8a8bc;--line:#4a424c;--ring:#e8a8bc}
+:root{--canvas:#f3f1f6;--surface:#fffcfe;--ink:#473448;--muted:#7d5a7c;--subtle:#a6a1a7;--accent:#856a8e;--line:#e4dde8;--ring:#856a8e}
+.dark{--canvas:#473448;--surface:#5a535c;--ink:#f4eef3;--muted:#cbbdce;--subtle:#a6a1a7;--accent:#e8a8bc;--line:#4a424c;--ring:#e8a8bc}
 html{background:var(--canvas);color:var(--ink)}
 body{font-family:Jost,"Avenir Next",Helvetica,Arial,sans-serif;max-width:880px;margin:0 auto;padding:3rem 1.5rem;line-height:1.6}
 header{display:flex;justify-content:space-between;align-items:center;font-family:"Nunito Sans",Jost,sans-serif;font-weight:700;letter-spacing:.04em}
@@ -29,7 +29,7 @@ figcaption{color:var(--ink);font-size:.9rem}
 .dark .light-only{display:none}.dark .dark-only{display:inline}
 footer{margin-top:3rem;color:var(--muted);font-size:1.2rem}
 </style>
-</head>
+<style>img,svg,picture,video,canvas{max-width:100%;height:auto}figure,picture,.board,.board>*{box-sizing:border-box;max-width:100%;min-width:0}figure{margin-inline:0}</style></head>
 <body>
 <header><span>ilghar.studio</span>
 <button id="theme" type="button" aria-pressed="false">Dark mode</button></header>

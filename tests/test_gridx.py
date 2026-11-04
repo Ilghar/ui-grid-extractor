@@ -36,7 +36,7 @@ class T(unittest.TestCase):
         self.assertEqual(core.dumps(r1), core.dumps(r2)); self.assertEqual(core.svg_overlay(d, r1), core.svg_overlay(d, r2))
     def test_svg_palette(self):
         d = fixtures.misaligned(); s = core.svg_overlay(d, core.analyse(d))
-        self.assertIn("#f3f1f6", s); self.assertIn("#c97a98", s)
+        self.assertIn("#f3f1f6", s); self.assertIn("#856a8e", s)
     def test_cli(self):
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         with tempfile.TemporaryDirectory() as td:
@@ -132,7 +132,7 @@ class Themes(unittest.TestCase):
     def test_overlay_theme_option(self):
         d = fixtures.misaligned(); r = core.analyse(d)
         dark = core.svg_overlay(d, r, "dark"); light = core.svg_overlay(d, r, "light")
-        self.assertIn('data-theme="dark"', dark); self.assertIn("#4a434c", dark); self.assertIn("#f3f1f6", light)
+        self.assertIn('data-theme="dark"', dark); self.assertIn("#473448", dark); self.assertIn("#f3f1f6", light)
         self.assertIn("misaligned", dark)  # flag is text, not hue-only
         with self.assertRaises(ValueError): core.svg_overlay(d, r, "sepia")
 
