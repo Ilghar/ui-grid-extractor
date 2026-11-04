@@ -19,7 +19,7 @@
     "accent": "#c97a98",
     "line": "#e4dde8",
     "font_sans": "Jost",
-    "font_display": "Nunito Sans"
+    "font_display": "Jost"
   },
   "done": [
     "schema v1 + validation",
