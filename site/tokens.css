@@ -42,7 +42,7 @@
   --surface: #302d34; /* e-card-2 */
   --ink: #d4d2d2; /* e-text */
   --ink-deep: #cf9aae; /* e-pink as deep accent on dark */
-  --muted: #aa9eb1; /* e-salute */
+  --muted: #a6a1a7; /* grey-2 — dark label/muted (DESIGNER-BOSS dark label rule) */
   --subtle: #8f8595; /* e-mauve */
   --subtle-2: #8f8595;
   --accent: #cf9aae; /* e-pink */
@@ -51,7 +51,7 @@
   --ring: #cf9aae;
   --accent-dot: #cf9aae;
   --title: #cf9aae;
-  --label: #aa9eb1;
+  --label: #a6a1a7;
   --dots: #8f8595;
   --hair: #8f8595;
   --front: #cf9aae;
@@ -63,7 +63,7 @@
     --surface: #302d34;
     --ink: #d4d2d2;
     --ink-deep: #cf9aae;
-    --muted: #aa9eb1;
+    --muted: #a6a1a7;
     --subtle: #8f8595;
     --subtle-2: #8f8595;
     --accent: #cf9aae;
@@ -72,7 +72,7 @@
     --ring: #cf9aae;
     --accent-dot: #cf9aae;
     --title: #cf9aae;
-    --label: #aa9eb1;
+    --label: #a6a1a7;
     --dots: #8f8595;
     --hair: #8f8595;
     --front: #cf9aae;

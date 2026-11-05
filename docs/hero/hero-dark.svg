@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Title card for Measured UI Grid Extractor by ilghar.studio.">
+<title>Title card for Measured UI Grid Extractor by ilghar.studio.</title>
+<rect width="1200" height="630" fill="#2a272d"/>
+<rect x="48" y="48" width="1104" height="534" rx="24" fill="none" stroke="#a6a1a7" stroke-width="1"/>
+<text x="80" y="120" font-family="Jost, Avenir Next, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" letter-spacing="0.14em" fill="#a6a1a7">ILGHAR.STUDIO</text>
+<text x="80" y="260" font-family="Jost, Avenir Next, Helvetica, Arial, sans-serif" font-size="64" font-weight="400" fill="#cf9aae"><tspan fill="#cf9aae">M</tspan>easured UI grid extractor</text>
+<foreignObject x="80" y="300" width="1040" height="200">
+  <div xmlns="http://www.w3.org/1999/xhtml" style="font:300 28px/1.35 Jost, Avenir Next, Helvetica, Arial, sans-serif; color:#d4d2d2; margin:0">Measure the grid. Do not assume it.</div>
+</foreignObject>
+<text x="80" y="540" font-family="Jost, Avenir Next, Helvetica, Arial, sans-serif" font-size="18" fill="#a6a1a7">ilghar.studio</text>
+</svg>
