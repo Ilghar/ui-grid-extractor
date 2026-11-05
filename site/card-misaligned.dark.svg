@@ -1,20 +1,20 @@
 <svg data-theme="dark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 376 400" width="376" height="400">
-<rect width="100%" height="100%" fill="#302d34"/>
-<line x1="24" y1="0" x2="24" y2="400" stroke="#cf9aae" stroke-width="1"/>
-<line x1="139" y1="0" x2="139" y2="400" stroke="#cf9aae" stroke-width="1"/>
-<line x1="248" y1="0" x2="248" y2="400" stroke="#cf9aae" stroke-width="1"/>
-<rect x="24" y="96" width="96" height="128" fill="#cf9aae" fill-opacity="0" stroke="#f5f7f9" stroke-width="1.5"/>
-<text x="27" y="107" font-family="Jost, sans-serif" font-size="9" fill="#f5f7f9">card0</text>
-<rect x="139" y="96" width="96" height="128" fill="#cf9aae" fill-opacity="0.35" stroke="#f5f7f9" stroke-width="1.5" stroke-dasharray="4 2"/>
-<text x="142" y="107" font-family="Jost, sans-serif" font-size="9" fill="#f5f7f9">card1 ✕ misaligned</text>
-<rect x="248" y="96" width="96" height="128" fill="#cf9aae" fill-opacity="0" stroke="#f5f7f9" stroke-width="1.5"/>
-<text x="251" y="107" font-family="Jost, sans-serif" font-size="9" fill="#f5f7f9">card2</text>
-<rect x="24" y="32" width="320" height="40" fill="#cf9aae" fill-opacity="0" stroke="#f5f7f9" stroke-width="1.5"/>
-<text x="27" y="43" font-family="Jost, sans-serif" font-size="9" fill="#f5f7f9">title</text>
-<rect x="24" y="248" width="320" height="24" fill="#cf9aae" fill-opacity="0" stroke="#f5f7f9" stroke-width="1.5"/>
-<text x="27" y="259" font-family="Jost, sans-serif" font-size="9" fill="#f5f7f9">lead</text>
-<rect x="24" y="296" width="320" height="48" fill="#cf9aae" fill-opacity="0" stroke="#f5f7f9" stroke-width="1.5"/>
-<text x="27" y="307" font-family="Jost, sans-serif" font-size="9" fill="#f5f7f9">body</text>
-<rect x="24" y="368" width="200" height="16" fill="#cf9aae" fill-opacity="0" stroke="#f5f7f9" stroke-width="1.5"/>
-<text x="27" y="379" font-family="Jost, sans-serif" font-size="9" fill="#f5f7f9">meta</text>
+<rect width="100%" height="100%" fill="#2a272d"/>
+<line x1="24" y1="0" x2="24" y2="400" stroke="#fcb4c4" stroke-width="1"/>
+<line x1="139" y1="0" x2="139" y2="400" stroke="#fcb4c4" stroke-width="1"/>
+<line x1="248" y1="0" x2="248" y2="400" stroke="#fcb4c4" stroke-width="1"/>
+<rect x="24" y="96" width="96" height="128" fill="#fcb4c4" fill-opacity="0" stroke="#f9fafb" stroke-width="1.5"/>
+<text x="27" y="107" font-family="Jost, sans-serif" font-size="9" fill="#f9fafb">card0</text>
+<rect x="139" y="96" width="96" height="128" fill="#fcb4c4" fill-opacity="0.35" stroke="#f9fafb" stroke-width="1.5" stroke-dasharray="4 2"/>
+<text x="142" y="107" font-family="Jost, sans-serif" font-size="9" fill="#f9fafb">card1 ✕ misaligned</text>
+<rect x="248" y="96" width="96" height="128" fill="#fcb4c4" fill-opacity="0" stroke="#f9fafb" stroke-width="1.5"/>
+<text x="251" y="107" font-family="Jost, sans-serif" font-size="9" fill="#f9fafb">card2</text>
+<rect x="24" y="32" width="320" height="40" fill="#fcb4c4" fill-opacity="0" stroke="#f9fafb" stroke-width="1.5"/>
+<text x="27" y="43" font-family="Jost, sans-serif" font-size="9" fill="#f9fafb">title</text>
+<rect x="24" y="248" width="320" height="24" fill="#fcb4c4" fill-opacity="0" stroke="#f9fafb" stroke-width="1.5"/>
+<text x="27" y="259" font-family="Jost, sans-serif" font-size="9" fill="#f9fafb">lead</text>
+<rect x="24" y="296" width="320" height="48" fill="#fcb4c4" fill-opacity="0" stroke="#f9fafb" stroke-width="1.5"/>
+<text x="27" y="307" font-family="Jost, sans-serif" font-size="9" fill="#f9fafb">body</text>
+<rect x="24" y="368" width="200" height="16" fill="#fcb4c4" fill-opacity="0" stroke="#f9fafb" stroke-width="1.5"/>
+<text x="27" y="379" font-family="Jost, sans-serif" font-size="9" fill="#f9fafb">meta</text>
 </svg>

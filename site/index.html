@@ -1,83 +1,106 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Measured UI Grid Extractor · ilghar.studio</title>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="pages-shell.css">
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>Measured UI Grid Extractor — ilghar.studio</title>
-<script>/* apply saved or system theme before paint */
-(function(){try{var t=localStorage.getItem("gridx-theme");}catch(e){}
-if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
-document.documentElement.classList.toggle("dark",t==="dark");})();</script>
 <style>
-@font-face{font-family:"Jost";font-style:normal;font-weight:300;font-display:swap;src:url("fonts/jost-latin-ext-300-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:normal;font-weight:300;font-display:swap;src:url("fonts/jost-latin-300-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Jost";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/jost-latin-ext-400-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/jost-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Jost";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/jost-latin-ext-500-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/jost-latin-500-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Jost";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/jost-latin-ext-600-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/jost-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Jost";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/jost-latin-ext-400-italic.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/jost-latin-400-italic.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Vazirmatn";font-style:normal;font-weight:100 900;font-display:swap;src:url("fonts/vazirmatn-fa.woff2") format("woff2");unicode-range:U+0600-06FF,U+200C-200D,U+FB50-FDFF,U+FE70-FEFF;}
-/* tokens from Ilghar/ilghar-studio src/styles.css */
-
-
-html{background:var(--canvas);color:var(--ink)}
-body{font-family:Jost,"Avenir Next",Helvetica,Arial,sans-serif;max-width:960px;margin:0 auto;padding:3rem 1.5rem;line-height:1.6}
-header{display:flex;justify-content:space-between;align-items:center;font-family:Jost,"Avenir Next",sans-serif;font-weight:500;letter-spacing:.04em}
-h1{font-weight:400;font-size:2.6rem;line-height:1.15;text-wrap:balance;text-transform:uppercase;letter-spacing:.14em;color:var(--label)}
-h1 em{color:var(--accent);font-style:normal}
-p{text-wrap:pretty}
-button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;cursor:pointer}
-button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
-figure{display:block;margin:1rem 0 0;max-width:100%}.initial{color:var(--accent-dot)}.ilg-app{margin:1.25rem 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.ilg-app label{display:block;margin:.5rem 0;font-size:.9rem;color:var(--label);letter-spacing:.08em;text-transform:uppercase}.ilg-app input[type=range]{width:100%}.ilg-app .verdict{font-size:1.2rem;margin-top:.75rem}.ilg-app .verdict.ok{color:var(--accent-dot)}.ilg-app .verdict.bad{color:var(--muted)}
-figure img{width:100%;border:1px solid var(--line);border-radius:6px}
-figcaption{color:var(--ink);font-size:.9rem}
-.light-only{display:inline}.dark-only{display:none}
-.dark .light-only{display:none}.dark .dark-only{display:inline}
-footer{margin-top:3rem;color:var(--muted);font-size:1.2rem}
+@font-face{font-family:"Jost";font-style:normal;font-weight:300;font-display:swap;src:url("fonts/jost-latin-300-normal.woff2") format("woff2")}
+@font-face{font-family:"Jost";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/jost-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Jost";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/jost-latin-500-normal.woff2") format("woff2")}
+label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--label)}
+input[type=range]{width:100%;accent-color:var(--mauve-em)}
+.verdict{font-size:16px;font-weight:300;margin:8px 0 0}
+.live-pad{padding:16px}
 </style>
 </head>
 <body>
-<header><span>ilghar.studio</span>
-<button id="theme" type="button" aria-pressed="false">Dark mode</button></header>
+<div class="ilg-case">
 <main>
-<h1><span class="initial">M</span>easure the grid.<br><em>Don’t assume it.</em></h1>
-
-<section class="ilg-app" aria-label="Live grid check">
-  <h2 style="font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--label);font-weight:500;margin:0 0 .5rem">Try it — nudge card1</h2>
-  <p style="margin:0 0 .75rem">Three cards on an 8px rhythm. Move card1 off the grid; the extractor refuses exactness instead of inventing a base unit.</p>
-  <label for="nudge">card1 nudge <span id="nudgeO">0</span> px</label>
-  <input id="nudge" type="range" min="0" max="8" step="1" value="0">
-  <svg id="gridviz" viewBox="0 0 360 200" width="100%" height="auto" role="img" aria-label="Three cards on a grid; card1 moves with the slider." style="margin-top:12px;border:1px solid var(--line);border-radius:8px;background:var(--canvas)"></svg>
-  <p id="verdict" class="verdict ok" aria-live="polite">exact · base 8px · 3 columns</p>
-</section>
-
-<p>A layout grid is a claim. This tool takes measured element coordinates (px, pt or mm, at any zoom, or boxes from an SVG), tests every candidate base unit against the evidence, and only exports spacing, column and type-scale tokens the numbers support. No default 4/8pt. Fewer than three elements or column guides is reported as <strong>insufficient</strong>, never as a grid.</p>
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="card-8px.dark.svg"><img class="light-only" src="card-8px.light.svg" alt="Clean layout overlay: 8px baseline, three columns" width="880" height="560"></picture><img class="dark-only" src="card-8px.dark.svg" alt="" width="880" height="560"><figcaption>Clean fixture: 8px rhythm, 3 columns @ 112px — exact.</figcaption></figure>
-<figure><picture><source media="(prefers-color-scheme: dark)" srcset="card-misaligned.dark.svg"><img class="light-only" src="card-misaligned.light.svg" alt="Overlay with card1 dashed and labelled misaligned" width="880" height="560"></picture><img class="dark-only" src="card-misaligned.dark.svg" alt="" width="880" height="560"><figcaption>card1 nudged 3px: dashed, labelled, exactness refused.</figcaption></figure>
+  <header class="site span12">
+    <p class="brand-label">ilghar.studio | grid</p>
+    <button type="button" class="theme-toggle" id="theme" aria-pressed="false">Dark mode</button>
+  </header>
+  <header class="hero span12">
+    <h1 class="name"><span class="first">M</span>easure the grid</h1>
+    <p class="title">UI grid extractor</p>
+    <p class="sub"><span>Measure</span><span>don’t assume</span></p>
+    <span class="status">In progress</span>
+  </header>
+  <section class="span12" aria-label="Live function">
+    <h2>Live function</h2>
+    <figure>
+      <div class="frame r1610">
+        <div class="live-pad">
+          <label for="nudge">card1 nudge <span id="nudgeO">0</span> px</label>
+          <input id="nudge" type="range" min="0" max="8" step="1" value="0">
+          <svg id="gridviz" viewBox="0 0 360 200" width="100%" height="auto" role="img" aria-label="Three cards on a grid; card1 moves with the slider."></svg>
+          <p id="verdict" class="verdict" aria-live="polite">exact · base 8px · 3 columns</p>
+        </div>
+      </div>
+      <figcaption>Live grid check</figcaption>
+    </figure>
+  </section>
+  <section class="span12" aria-label="Proof">
+    <h2>Proof</h2>
+    <div class="grid-444">
+      <div class="card"><h3>Exact fixture</h3><p>8px rhythm, 3 columns — accepted.</p></div>
+      <div class="card"><h3>Nudge 3px</h3><p>Exactness refused; card1 labelled misaligned.</p></div>
+      <div class="card"><h3>Insufficient</h3><p>Fewer than three elements reports insufficient, never a grid.</p></div>
+    </div>
+  </section>
+  <section class="span12" aria-label="Project material">
+    <h2>Project material</h2>
+    <div class="grid-66">
+      <figure>
+        <div class="frame r43"><img src="card-8px.light.svg" alt="Clean layout overlay: 8px baseline, three columns" width="880" height="560"></div>
+        <figcaption>Clean fixture</figcaption>
+      </figure>
+      <figure>
+        <div class="frame r43"><img src="card-misaligned.light.svg" alt="Overlay with card1 dashed and labelled misaligned" width="880" height="560"></div>
+        <figcaption>Misaligned card1</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section class="span12">
+    <h2>How it works</h2>
+    <ul class="dots">
+      <li>Measured coordinates in, candidate base units tested against the evidence.</li>
+      <li>Only spacing, column and type-scale tokens the numbers support are exported.</li>
+      <li>No default 4/8pt grid is invented when the data cannot carry one.</li>
+    </ul>
+  </section>
+  <footer class="span12">ilghar.studio</footer>
 </main>
-<footer>ilghar.studio</footer>
+</div>
 <script>
-(function(){var b=document.getElementById("theme"),r=document.documentElement;
-function sync(){var d=r.classList.contains("dark");b.setAttribute("aria-pressed",String(d));b.textContent=d?"Light mode":"Dark mode";}
-b.addEventListener("click",function(){var d=!r.classList.contains("dark");r.classList.toggle("dark",d);try{localStorage.setItem("gridx-theme",d?"dark":"light");}catch(e){}sync();});
-sync();})();
+(function(){var r=document.documentElement;var b=document.querySelector(".theme-toggle");if(!b)return;var k="ilg-theme";var m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");var s=null;try{s=localStorage.getItem(k)}catch(e){}function dark(){var t=r.getAttribute("data-theme");return t?t==="dark":!!(m&&m.matches)}function sync(){var d=dark();b.setAttribute("aria-pressed",String(d));b.textContent=d?"Light mode":"Dark mode";var root=document.querySelector(".ilg-case");if(d){root.setAttribute("data-theme","dark");r.setAttribute("data-theme","dark")}else{root.setAttribute("data-theme","light");r.setAttribute("data-theme","light")}}if(s==="dark"||s==="light"){r.setAttribute("data-theme",s);document.querySelector(".ilg-case").setAttribute("data-theme",s)}sync();if(m&&m.addEventListener)m.addEventListener("change",sync);b.addEventListener("click",function(){var n=dark()?"light":"dark";r.setAttribute("data-theme",n);document.querySelector(".ilg-case").setAttribute("data-theme",n);try{localStorage.setItem(k,n)}catch(e){}sync()})})();
 </script>
-
 <script>
 (function(){
-  const svg=document.getElementById("gridviz"), nudge=document.getElementById("nudge"), out=document.getElementById("nudgeO"), v=document.getElementById("verdict");
-  const cards=[{id:"c0",x:24,y:24,w:96,h:64},{id:"c1",x:136,y:24,w:96,h:64},{id:"c2",x:248,y:24,w:96,h:64}];
+  var nudge=document.getElementById('nudge'), out=document.getElementById('nudgeO'), svg=document.getElementById('gridviz'), verd=document.getElementById('verdict');
   function draw(){
-    const n=+nudge.value; out.textContent=n;
-    const els=cards.map((c,i)=>i===1?{...c,x:c.x+n}:c);
-    const guides=[24,136,248,344];
-    let lines=""; for(let x=0;x<=360;x+=8) lines+=`<line x1="${x}" y1="0" x2="${x}" y2="200" stroke="var(--line)" stroke-width=".5"/>`;
-    for(let y=0;y<=200;y+=8) lines+=`<line x1="0" y1="${y}" x2="360" y2="${y}" stroke="var(--line)" stroke-width=".5"/>`;
-    const rects=els.map((c,i)=>`<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="none" stroke="${i===1&&n?"var(--accent-dot)":"var(--title)"}" stroke-width="2" stroke-dasharray="${i===1&&n?"4 3":"none"}"/>`).join("");
-    svg.innerHTML=lines+rects;
-    if(n===0){ v.className="verdict ok"; v.textContent="exact · base 8px · 3 columns"; }
-    else { v.className="verdict bad"; v.textContent="refused · card1 off grid by "+n+"px · no invented base"; }
+    var n=+nudge.value; out.textContent=n;
+    var cards=[{x:24,y:40,w:96,h:120},{x:136,y:40,w:96,h:120},{x:248,y:40,w:96,h:120}];
+    cards[0].x+=n;
+    var ink=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#5a515c';
+    var line=getComputedStyle(document.documentElement).getPropertyValue('--line').trim()||'#7d5a7c';
+    var pink=getComputedStyle(document.documentElement).getPropertyValue('--pink').trim()||'#fcb4c4';
+    var parts=['<rect width="360" height="200" fill="var(--bg)"/>'];
+    for(var x=0;x<=360;x+=8) parts.push('<line x1="'+x+'" y1="0" x2="'+x+'" y2="200" stroke="'+line+'" stroke-width="0.5" opacity="0.35"/>');
+    cards.forEach(function(c,i){
+      var stroke=i===0&&n?pink:ink;
+      var dash=i===0&&n?' stroke-dasharray="4 3"':'';
+      parts.push('<rect x="'+c.x+'" y="'+c.y+'" width="'+c.w+'" height="'+c.h+'" fill="none" stroke="'+stroke+'" stroke-width="1.5"'+dash+'/>');
+      if(i===0&&n) parts.push('<text x="'+c.x+'" y="'+(c.y-6)+'" fill="'+pink+'" font-family="Jost,sans-serif" font-size="10">misaligned</text>');
+    });
+    svg.innerHTML=parts.join('');
+    verd.textContent=n?('refused · card1 off by '+n+'px'):'exact · base 8px · 3 columns';
   }
-  nudge.addEventListener("input",draw); draw();
+  nudge.addEventListener('input', draw); draw();
 })();
 </script>
-
 </body>
 </html>

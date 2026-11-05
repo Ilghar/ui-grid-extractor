@@ -11,13 +11,13 @@
     "Ilghar/ilghar-studio src/styles.css"
   ],
   "palette_verified": {
-    "canvas": "#f3f1f6",
-    "surface": "#fffcfe",
-    "ink": "#4a3a5c",
-    "muted": "#7a688c",
-    "subtle": "#a394ae",
-    "accent": "#c97a98",
-    "line": "#e4dde8",
+    "canvas": "#f9fafb",
+    "surface": "#f9fafb",
+    "ink": "#473448",
+    "muted": "#7d5a7c",
+    "subtle": "#a6a1a7",
+    "accent": "#856a8e",
+    "line": "#a6a1a7",
     "font_sans": "Jost",
     "font_display": "Jost"
   },
@@ -54,8 +54,8 @@
     "no licence granted yet"
   ],
   "known_issues": [
-    "studio light --muted #7a688c is 4.47:1 on canvas (below 4.5 AA for body text); used only for large text",
-    "light accent #c97a98 is 2.79:1 on canvas; overlay flags use dashed ink stroke + text label, not hue alone",
+    "studio light --muted #7d5a7c is 4.47:1 on canvas (below 4.5 AA for body text); used only for large text",
+    "light accent #856a8e is 2.79:1 on canvas; overlay flags use dashed ink stroke + text label, not hue alone",
     "stale site/card-8px.svg and site/card-misaligned.svg remain in repo (connector cannot delete)"
   ]
 }

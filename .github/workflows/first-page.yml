@@ -1,0 +1,15 @@
+name: First-page check
+on:
+  push:
+  pull_request:
+jobs:
+  first-page:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install pillow
+      - run: python3 scripts/check_first_page.py
+

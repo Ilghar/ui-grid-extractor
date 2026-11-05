@@ -1,0 +1,2 @@
+# first-page CI allowlist — Hāèl photos/scans only (paths relative to repo root)
+# none in this repo yet; see /workspace/handoff/blue-assets-20261105.md
