@@ -38,14 +38,14 @@ header.site{display:flex;align-items:center;justify-content:space-between;gap:12
   background:transparent;border:1px solid var(--line);border-radius:0;padding:.35rem .7rem;cursor:pointer;
 }
 .theme-toggle:focus-visible,.ilg-theme-toggle:focus-visible{outline:2px solid var(--line);outline-offset:2px}
-.hero{text-align:center;margin:0 0 24px}
+.hero{text-align:left;margin:0 0 24px}
 .hero .name,.hero h1{
   font-size:40px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--head);margin:0;
 }
 @media (max-width:600px){.hero .name,.hero h1{font-size:30px}}
 .hero .first,.hero .initial{color:var(--pink)}
 .hero .title{display:block;margin-top:8px;font-weight:500;font-size:.95rem;letter-spacing:.18em;text-transform:uppercase;color:var(--label)}
-.hero .sub{font-size:17px;font-weight:300;color:var(--fg);margin:12px auto 0;max-width:64ch}
+.hero .sub{font-size:17px;font-weight:300;color:var(--fg);margin:12px 0 0;max-width:64ch}
 .hero .sub span+span::before{content:" | ";color:var(--line)}
 .badge,.status{
   display:inline-block;margin-top:12px;border:1px solid var(--line);padding:.15rem .65rem;
