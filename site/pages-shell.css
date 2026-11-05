@@ -63,8 +63,7 @@ figcaption,.cap{
   margin-top:8px;font-size:12px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--label);
 }
 h2{font-weight:400;font-size:23px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);
-  border-top:1px solid var(--line);padding-top:.8em;margin:64px 0 24px}
-@media (max-width:600px){h2{margin-top:48px}}
+  border-top:1px solid var(--line);padding-top:.8em;margin:0 0 24px}
 .card{border:1px solid var(--line);border-radius:0;box-shadow:none;background:var(--bg);padding:16px;margin:0}
 .card h3{font-size:12px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin:0 0 8px}
 .card p{margin:0;font-size:16px;font-weight:300;max-width:64ch}
@@ -83,3 +82,40 @@ footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);font-si
 .hero-art img{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;max-height:none;object-fit:fill;border:0;border-radius:0}
 figure.span12 > .hero-art, figure.hero > .hero-art{width:100%}
 
+
+/* section rhythm — exactly 64px (48px ≤600); no extra h2 top margin */
+section{margin-top:64px;margin-bottom:0}
+@media (max-width:600px){section{margin-top:48px}}
+figure.span12{margin:0}
+
+/* Live demo frames: full width, height follows content — no forced 16:10.
+   Hero .hero-art stays 8:3; boards/cards keep .r1610 / .r43. */
+section[aria-label="Live function"] .frame,
+.frame.live,
+#app-frame{
+  aspect-ratio:auto;
+  height:auto;
+  min-height:0;
+}
+section[aria-label="Live function"] .frame > *,
+.frame.live > *,
+#app-frame > *{
+  width:100%;
+  height:auto;
+  max-height:none;
+  object-fit:unset;
+  position:static;
+}
+section[aria-label="Live function"] .frame iframe,
+.frame.live iframe{
+  display:block;
+  width:100%;
+  height:auto;
+  min-height:480px;
+  border:0;
+  position:static;
+}
+@media (max-width:600px){
+  section[aria-label="Live function"] .frame iframe,
+  .frame.live iframe{min-height:520px}
+}
