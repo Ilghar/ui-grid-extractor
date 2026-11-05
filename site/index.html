@@ -18,14 +18,14 @@ document.documentElement.classList.toggle("dark",t==="dark");})();</script>
 
 
 html{background:var(--canvas);color:var(--ink)}
-body{font-family:Jost,"Avenir Next",Helvetica,Arial,sans-serif;max-width:880px;margin:0 auto;padding:3rem 1.5rem;line-height:1.6}
+body{font-family:Jost,"Avenir Next",Helvetica,Arial,sans-serif;max-width:960px;margin:0 auto;padding:3rem 1.5rem;line-height:1.6}
 header{display:flex;justify-content:space-between;align-items:center;font-family:Jost,"Avenir Next",sans-serif;font-weight:500;letter-spacing:.04em}
-h1{font-weight:400;font-size:2.6rem;line-height:1.15;text-wrap:balance}
+h1{font-weight:400;font-size:2.6rem;line-height:1.15;text-wrap:balance;text-transform:uppercase;letter-spacing:.14em;color:var(--label)}
 h1 em{color:var(--accent);font-style:normal}
 p{text-wrap:pretty}
 button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;cursor:pointer}
 button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
-figure{display:inline-block;margin:1rem 1rem 0 0;max-width:376px}
+figure{display:block;margin:1rem 0 0;max-width:100%}.initial{color:var(--accent-dot)}.ilg-app{margin:1.25rem 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.ilg-app label{display:block;margin:.5rem 0;font-size:.9rem;color:var(--label);letter-spacing:.08em;text-transform:uppercase}.ilg-app input[type=range]{width:100%}.ilg-app .verdict{font-size:1.2rem;margin-top:.75rem}.ilg-app .verdict.ok{color:var(--accent-dot)}.ilg-app .verdict.bad{color:var(--muted)}
 figure img{width:100%;border:1px solid var(--line);border-radius:6px}
 figcaption{color:var(--ink);font-size:.9rem}
 .light-only{display:inline}.dark-only{display:none}
@@ -38,6 +38,16 @@ footer{margin-top:3rem;color:var(--muted);font-size:1.2rem}
 <button id="theme" type="button" aria-pressed="false">Dark mode</button></header>
 <main>
 <h1><span class="initial">M</span>easure the grid.<br><em>Don’t assume it.</em></h1>
+
+<section class="ilg-app" aria-label="Live grid check">
+  <h2 style="font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--label);font-weight:500;margin:0 0 .5rem">Try it — nudge card1</h2>
+  <p style="margin:0 0 .75rem">Three cards on an 8px rhythm. Move card1 off the grid; the extractor refuses exactness instead of inventing a base unit.</p>
+  <label for="nudge">card1 nudge <span id="nudgeO">0</span> px</label>
+  <input id="nudge" type="range" min="0" max="8" step="1" value="0">
+  <svg id="gridviz" viewBox="0 0 360 200" width="100%" height="auto" role="img" aria-label="Three cards on a grid; card1 moves with the slider." style="margin-top:12px;border:1px solid var(--line);border-radius:8px;background:var(--canvas)"></svg>
+  <p id="verdict" class="verdict ok" aria-live="polite">exact · base 8px · 3 columns</p>
+</section>
+
 <p>A layout grid is a claim. This tool takes measured element coordinates (px, pt or mm, at any zoom, or boxes from an SVG), tests every candidate base unit against the evidence, and only exports spacing, column and type-scale tokens the numbers support. No default 4/8pt. Fewer than three elements or column guides is reported as <strong>insufficient</strong>, never as a grid.</p>
 <figure><picture><source media="(prefers-color-scheme: dark)" srcset="card-8px.dark.svg"><img class="light-only" src="card-8px.light.svg" alt="Clean layout overlay: 8px baseline, three columns" width="880" height="560"></picture><img class="dark-only" src="card-8px.dark.svg" alt="" width="880" height="560"><figcaption>Clean fixture: 8px rhythm, 3 columns @ 112px — exact.</figcaption></figure>
 <figure><picture><source media="(prefers-color-scheme: dark)" srcset="card-misaligned.dark.svg"><img class="light-only" src="card-misaligned.light.svg" alt="Overlay with card1 dashed and labelled misaligned" width="880" height="560"></picture><img class="dark-only" src="card-misaligned.dark.svg" alt="" width="880" height="560"><figcaption>card1 nudged 3px: dashed, labelled, exactness refused.</figcaption></figure>
@@ -49,5 +59,25 @@ function sync(){var d=r.classList.contains("dark");b.setAttribute("aria-pressed"
 b.addEventListener("click",function(){var d=!r.classList.contains("dark");r.classList.toggle("dark",d);try{localStorage.setItem("gridx-theme",d?"dark":"light");}catch(e){}sync();});
 sync();})();
 </script>
+
+<script>
+(function(){
+  const svg=document.getElementById("gridviz"), nudge=document.getElementById("nudge"), out=document.getElementById("nudgeO"), v=document.getElementById("verdict");
+  const cards=[{id:"c0",x:24,y:24,w:96,h:64},{id:"c1",x:136,y:24,w:96,h:64},{id:"c2",x:248,y:24,w:96,h:64}];
+  function draw(){
+    const n=+nudge.value; out.textContent=n;
+    const els=cards.map((c,i)=>i===1?{...c,x:c.x+n}:c);
+    const guides=[24,136,248,344];
+    let lines=""; for(let x=0;x<=360;x+=8) lines+=`<line x1="${x}" y1="0" x2="${x}" y2="200" stroke="var(--line)" stroke-width=".5"/>`;
+    for(let y=0;y<=200;y+=8) lines+=`<line x1="0" y1="${y}" x2="360" y2="${y}" stroke="var(--line)" stroke-width=".5"/>`;
+    const rects=els.map((c,i)=>`<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="none" stroke="${i===1&&n?"var(--accent-dot)":"var(--title)"}" stroke-width="2" stroke-dasharray="${i===1&&n?"4 3":"none"}"/>`).join("");
+    svg.innerHTML=lines+rects;
+    if(n===0){ v.className="verdict ok"; v.textContent="exact · base 8px · 3 columns"; }
+    else { v.className="verdict bad"; v.textContent="refused · card1 off grid by "+n+"px · no invented base"; }
+  }
+  nudge.addEventListener("input",draw); draw();
+})();
+</script>
+
 </body>
 </html>
