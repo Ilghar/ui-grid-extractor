@@ -1,0 +1,81 @@
+/* ilghar.studio design tokens. Source: hael-design-system (PDF palette + typography.md).
+   Dark: .dark class, [data-theme=dark], or prefers-color-scheme when :root is not .light.
+   No @import, no font URLs (CSP style-src/font-src 'self'). Pair with fonts/fonts.css. */
+:root {
+  /* PDF light */
+  --canvas: #f9fafb; /* paper */
+  --surface: #f5f7f9; /* cover-paper */
+  --ink: #5a515c; /* body */
+  --ink-deep: #473448; /* key terms */
+  --muted: #7d5a7c; /* mauve-hair */
+  --subtle: #948e95; /* grey */
+  --subtle-2: #a6a1a7; /* grey-2 */
+  --accent: #775a76; /* mauve-label */
+  --accent-fg: #f9fafb;
+  --line: #b8b4b9; /* grey-rule */
+  --ring: #7d5a7c;
+  --accent-dot: #fcb4c4; /* pink title initial */
+  --title: #856a8e; /* mauve-emph */
+  --label: #775a76;
+  --dots: #9c819b;
+  --hair: #7d5a7c;
+  --front: #473448;
+  /* type */
+  --font-sans: "Jost", "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: "Jost", "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-fa: "Vazirmatn", "Noto Naskh Arabic", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --title-lat-family: "Jost", "Avenir Next", sans-serif;
+  --title-lat-weight: 400;
+  --title-fa-family: "Vazirmatn", "Noto Naskh Arabic", sans-serif;
+  --title-fa-weight: 400;
+  --title-fa-size: .9em;
+  --label-weight: 500;
+  --stroke-hair: .32pt;
+  --stroke-dot: 2.15pt;
+  --dot-pitch: 4.29pt;
+  color-scheme: light;
+}
+.dark,
+[data-theme="dark"] {
+  --canvas: #2a272d; /* e-card */
+  --surface: #302d34; /* e-card-2 */
+  --ink: #d4d2d2; /* e-text */
+  --ink-deep: #cf9aae; /* e-pink as deep accent on dark */
+  --muted: #aa9eb1; /* e-salute */
+  --subtle: #8f8595; /* e-mauve */
+  --subtle-2: #8f8595;
+  --accent: #cf9aae; /* e-pink */
+  --accent-fg: #2a272d;
+  --line: #57535c; /* e-outer-2 */
+  --ring: #cf9aae;
+  --accent-dot: #cf9aae;
+  --title: #cf9aae;
+  --label: #aa9eb1;
+  --dots: #8f8595;
+  --hair: #8f8595;
+  --front: #cf9aae;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme="light"]) {
+    --canvas: #2a272d;
+    --surface: #302d34;
+    --ink: #d4d2d2;
+    --ink-deep: #cf9aae;
+    --muted: #aa9eb1;
+    --subtle: #8f8595;
+    --subtle-2: #8f8595;
+    --accent: #cf9aae;
+    --accent-fg: #2a272d;
+    --line: #57535c;
+    --ring: #cf9aae;
+    --accent-dot: #cf9aae;
+    --title: #cf9aae;
+    --label: #aa9eb1;
+    --dots: #8f8595;
+    --hair: #8f8595;
+    --front: #cf9aae;
+    color-scheme: dark;
+  }
+}

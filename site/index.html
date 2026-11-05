@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="pages-shell.css">
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
@@ -12,8 +15,8 @@ document.documentElement.classList.toggle("dark",t==="dark");})();</script>
 <style>
 @font-face{font-family:"Jost";font-style:normal;font-weight:300;font-display:swap;src:url("fonts/jost-latin-ext-300-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:normal;font-weight:300;font-display:swap;src:url("fonts/jost-latin-300-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Jost";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/jost-latin-ext-400-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/jost-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Jost";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/jost-latin-ext-500-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/jost-latin-500-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Jost";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/jost-latin-ext-600-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/jost-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Jost";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/jost-latin-ext-400-italic.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}@font-face{font-family:"Jost";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/jost-latin-400-italic.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:"Vazirmatn";font-style:normal;font-weight:100 900;font-display:swap;src:url("fonts/vazirmatn-fa.woff2") format("woff2");unicode-range:U+0600-06FF,U+200C-200D,U+FB50-FDFF,U+FE70-FEFF;}
 /* tokens from Ilghar/ilghar-studio src/styles.css */
-:root{--canvas:#f3f1f6;--surface:#fffcfe;--ink:#4a3a5c;--muted:#7a688c;--subtle:#a394ae;--accent:#c97a98;--line:#e4dde8;--ring:#c97a98}
-.dark{--canvas:#4a434c;--surface:#5a535c;--ink:#f4eef3;--muted:#cbbdce;--subtle:#9a8a9c;--accent:#e8a8bc;--line:#4a424c;--ring:#e8a8bc}
+
+
 html{background:var(--canvas);color:var(--ink)}
 body{font-family:Jost,"Avenir Next",Helvetica,Arial,sans-serif;max-width:880px;margin:0 auto;padding:3rem 1.5rem;line-height:1.6}
 header{display:flex;justify-content:space-between;align-items:center;font-family:Jost,"Avenir Next",sans-serif;font-weight:500;letter-spacing:.04em}
@@ -34,10 +37,10 @@ footer{margin-top:3rem;color:var(--muted);font-size:1.2rem}
 <header><span>ilghar.studio</span>
 <button id="theme" type="button" aria-pressed="false">Dark mode</button></header>
 <main>
-<h1>Measure the grid.<br><em>Don’t assume it.</em></h1>
+<h1><span class="initial">M</span>easure the grid.<br><em>Don’t assume it.</em></h1>
 <p>A layout grid is a claim. This tool takes measured element coordinates (px, pt or mm, at any zoom, or boxes from an SVG), tests every candidate base unit against the evidence, and only exports spacing, column and type-scale tokens the numbers support. No default 4/8pt. Fewer than three elements or column guides is reported as <strong>insufficient</strong>, never as a grid.</p>
-<figure><img class="light-only" src="card-8px.light.svg" alt="Clean layout overlay: 8px baseline, three columns"><img class="dark-only" src="card-8px.dark.svg" alt="Clean layout overlay: 8px baseline, three columns"><figcaption>Clean fixture: 8px rhythm, 3 columns @ 112px — exact.</figcaption></figure>
-<figure><img class="light-only" src="card-misaligned.light.svg" alt="Overlay with card1 dashed and labelled misaligned"><img class="dark-only" src="card-misaligned.dark.svg" alt="Overlay with card1 dashed and labelled misaligned"><figcaption>card1 nudged 3px: dashed, labelled, exactness refused.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="card-8px.dark.svg"><img class="light-only" src="card-8px.light.svg" alt="Clean layout overlay: 8px baseline, three columns" width="880" height="560"></picture><img class="dark-only" src="card-8px.dark.svg" alt="" width="880" height="560"><figcaption>Clean fixture: 8px rhythm, 3 columns @ 112px — exact.</figcaption></figure>
+<figure><picture><source media="(prefers-color-scheme: dark)" srcset="card-misaligned.dark.svg"><img class="light-only" src="card-misaligned.light.svg" alt="Overlay with card1 dashed and labelled misaligned" width="880" height="560"></picture><img class="dark-only" src="card-misaligned.dark.svg" alt="" width="880" height="560"><figcaption>card1 nudged 3px: dashed, labelled, exactness refused.</figcaption></figure>
 </main>
 <footer>ilghar.studio</footer>
 <script>
