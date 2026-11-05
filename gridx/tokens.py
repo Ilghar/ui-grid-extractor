@@ -81,11 +81,14 @@ class TokenCheck:
             for f in TokenCheck.SPACING_FIELDS:
                 v = el.get(f)
                 if not _isnum(v):
-                    errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "a finite number"})
+                    shown = v if not isinstance(v, float) or math.isfinite(v) else str(v)  # keep the JSON output standard
+                    errors.append({"id": eid, "rule": "geometry", "field": f, "value": shown, "expected": "a finite number"})
                 elif v < 0 or (f in ("w", "h") and v == 0):
                     errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "nonnegative position / positive size"})
                 elif not math.isfinite(v * factor):
                     errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "a value that stays finite after unit/zoom conversion"})
+                elif f in ("w", "h") and round(v * factor, 4) == 0:
+                    errors.append({"id": eid, "rule": "geometry", "field": f, "value": v, "expected": "a size that stays positive after unit/zoom conversion"})
                 elif round(v * factor, 4) % step:
                     errors.append({"id": eid, "rule": "spacing", "field": f, "value": v, "value_px": round(v * factor, 4), "expected": "multiple of %gpx (Tailwind default step)" % step})
         return {"ok": not errors, "errors": errors, "checked": len(elements),

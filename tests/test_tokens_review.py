@@ -127,3 +127,23 @@ class CodexReview6589193881(unittest.TestCase):
         r = self.TC.check(d, self.tokens)
         self.assertFalse(r["ok"]); self.assertIn("geometry", [e["rule"] for e in r["errors"]])
         _j.dumps(r, allow_nan=False)
+
+
+class CodexP2FollowUp(unittest.TestCase):
+    def _check(self, field, value):
+        import copy
+        from gridx import fixtures
+        from gridx.tokens import TokenCheck
+        lay = copy.deepcopy(fixtures.card_8px())
+        lay["elements"][0][field] = value
+        return TokenCheck.check(lay, TokenCheck.load_tokens(TOKENS))
+
+    def test_size_rounding_to_zero_is_rejected(self):
+        r = self._check("w", 0.00001)
+        self.assertFalse(r["ok"])
+
+    def test_nonfinite_value_is_serialised_as_standard_json(self):
+        import json
+        r = self._check("w", float("inf"))
+        self.assertFalse(r["ok"])
+        json.dumps(r, allow_nan=False)
