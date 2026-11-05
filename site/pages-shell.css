@@ -1,7 +1,7 @@
 /* LAYOUT.md shell — load after tokens.css. Aliases + 12-col + theme toggle. */
 :root{
   --canvas:var(--bg); --surface:var(--bg); --accent:var(--mauve-em); --accent-fg:var(--paper);
-  --accent-dot:var(--pink); --ring:var(--mauve-line); --muted:var(--grey); --subtle:var(--grey-soft);
+  --accent-dot:#856a8e; --ring:var(--mauve-line); --muted:var(--grey); --subtle:var(--grey-soft);
   --font-sans:var(--font); --title-lat-family:var(--font); --title-lat-weight:400;
   --label-weight:400; --figure-bg:var(--bg);
 }
@@ -70,10 +70,10 @@ h2{font-weight:400;font-size:23px;letter-spacing:.12em;text-transform:uppercase;
 .card p{margin:0;font-size:16px;font-weight:300;max-width:64ch}
 ul.dots{list-style:none;padding:0;margin:0}
 ul.dots li{margin:0 0 12px;font-size:16px;font-weight:300;max-width:64ch}
-ul.dots li::before{content:"• ";color:var(--pink)}
+ul.dots li::before{content:"• ";color:#856a8e}
 a{color:var(--mauve-em)}
 footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--label)}
 /* kill legacy shadows/radii from any leftover inline */
 .ilg-frame{border:1px solid var(--line);border-radius:0;box-shadow:none;background:var(--bg);padding:0;overflow:hidden;width:100%}
 .board{margin:0}
-.board img,.board picture{border-radius:0!important;box-shadow:none!important}
+.board img,.board picture{border-radius:0;box-shadow:none!important}

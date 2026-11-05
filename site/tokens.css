@@ -4,7 +4,7 @@
   --mauve-em:#856a8e; --mauve-line:#7d5a7c; --mauve-label:#775a76;
   --grey:#948e95; --grey-soft:#a6a1a7; --pink:#fcb4c4; --card:#2a272d; --on-dark:#d4d2d2;
   --bg:var(--paper); --fg:var(--ink); --head:var(--plum); --label:var(--mauve-label); --line:var(--mauve-line);
-  --font:"Brandon Text",Jost,system-ui,sans-serif; --font-fa:Vazirmatn,"Brandon Text",Jost,sans-serif;
+  --font:"Brandon Text",Jost,Jost; --font-fa:Vazirmatn,"Brandon Text",Jost;
   --col:960px;
   color-scheme:light dark;
 }
@@ -12,7 +12,7 @@
   :root{--bg:var(--card); --fg:var(--on-dark); --head:var(--on-dark); --label:var(--grey-soft); --line:var(--mauve-em);}
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:300 16px/1.55 var(--font)} p{max-width:64ch;margin:0 0 12px} b,strong{font-weight:inherit}
+body{margin:0;background:var(--bg);color:var(--fg);font:300 16px/1.55 Jost} p{max-width:64ch;margin:0 0 12px} b,strong{font-weight:inherit}
 main{max-width:var(--col);margin:0 auto;padding:0 24px}
 @media (max-width:600px){main{padding:0 20px}}
 img,svg,video,iframe,canvas,figure{max-width:100%;height:auto}

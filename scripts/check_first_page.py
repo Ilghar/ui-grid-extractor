@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""First-page CI: palette, fonts, blue pixels, unoutlined SVG text."""
+"""First-page CI: radius 0, no SVG <text>, fonts Jost/Vazirmatn/var(--font*) only,
+off-palette #hex in source, blue pixels in rasters/SVG embeds,
+pink #fcb4c4 only on title initials.
+
+Why earlier misses (fixed here):
+1. No border-radius / rect rx|ry check at all.
+2. Font allowlist permitted system-ui, sans-serif, Arial, monospace, etc.
+3. Font scan used only `font-family:` (CSS) and skipped .svg files, so SVG
+   `font-family="..."` attributes were never checked.
+4. SVG <text> was detected, but CI noise from off-palette *pixel* sampling of
+   photos drowned the signal; hex check is now source-#hex only, blue is pixels.
+5. Pink #fcb4c4 was unrestricted; now only title-initial contexts are allowed.
+"""
 from __future__ import annotations
 
 import argparse
@@ -26,23 +38,37 @@ TOKENS_CANDIDATES = [
 ]
 
 IMG_EXT = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
+TEXT_EXT = {".css", ".html", ".js", ".jsx", ".ts", ".tsx", ".mjs", ".svg"}
 SKIP_DIRS = {".git", "node_modules", "dist", "vendor", "__pycache__", ".venv", "pr-shots"}
 
 FALLBACK_HEX = {
     "#f9fafb", "#5a515c", "#473448", "#856a8e", "#7d5a7c", "#775a76",
     "#948e95", "#a6a1a7", "#fcb4c4", "#2a272d", "#d4d2d2",
 }
+PINK = "#fcb4c4"
 
-ALLOWED_FONT_OK = re.compile(
-    r"^(jost|vazirmatn|brandon text|system-ui|sans-serif|serif|monospace|"
-    r"ui-monospace|menlo|sfmono-regular|inherit|emoji|apple color emoji|"
-    r"segoe ui emoji|arial|helvetica|helvetica neue|avenir|avenir next|"
-    r"var\(|noto naskh arabic|noto sans arabic)$",
+FONT_TOKEN_OK = re.compile(
+    r"^(jost|vazirmatn|var\(\s*--font[a-z0-9-]*\s*(\s*,\s*[^)]+)?\))$",
     re.I,
 )
-BAD_FONT = re.compile(
-    r"nunito|inter|roboto|open sans|montserrat|poppins|lato|raleway|"
-    r"source sans|pt sans|ubuntu|fira|georgia|times new roman|comic sans",
+RADIUS_ZERO = re.compile(r"^0(px|%)?(\s*!important)?$", re.I)
+
+FONT_FAMILY_CSS = re.compile(r"font-family\s*:\s*([^;}\n]+)", re.I)
+FONT_FAMILY_ATTR = re.compile(r"font-family\s*=\s*[\"']([^\"']+)[\"']", re.I)
+FONT_SHORTHAND = re.compile(
+    r"font\s*:\s*(?:(?:normal|italic|oblique|bold|bolder|lighter|\d{3})\s+)*"
+    r"[\d.]+(?:px|rem|em|%)?(?:\s*/\s*[\d.]+(?:px|rem|em|%|))?\s+([^;}\"']+)",
+    re.I,
+)
+BORDER_RADIUS = re.compile(r"border-radius\s*:\s*([^;}\n]+)", re.I)
+RECT_RX_RY = re.compile(r"<rect\b[^>]*?\b(rx|ry)\s*=\s*[\"']([^\"']+)[\"']", re.I | re.S)
+
+# Title-initial contexts where #fcb4c4 / var(--pink) is allowed
+PINK_OK_CONTEXT = re.compile(
+    r"(\.first\b|::first-letter|first-letter|--pink\s*:|"
+    r"title.?initial|pink.?initial|span\.first|h1\s+\.first|"
+    r"\.name\s+\.first|\.hero\s+\.first|"
+    r"class(?:Name)?=\"[^\"]*\bfirst\b)",
     re.I,
 )
 
@@ -50,10 +76,12 @@ BAD_FONT = re.compile(
 def load_allowed_hex() -> set[str]:
     for p in TOKENS_CANDIDATES:
         if p.exists():
-            return set(
+            found = set(
                 h.lower()
                 for h in re.findall(r"#[0-9A-Fa-f]{6}\b", p.read_text(encoding="utf-8", errors="ignore"))
             )
+            if found:
+                return found
     return set(FALLBACK_HEX)
 
 
@@ -98,7 +126,7 @@ def is_allowlisted(path: Path, allow: set[str]) -> bool:
     for a in allow:
         if a.endswith("/") and rel.startswith(a):
             return True
-        if rel.startswith(a.rstrip("/") + "/") or rel == a:
+        if rel == a or rel.startswith(a.rstrip("/") + "/"):
             return True
     return False
 
@@ -117,15 +145,14 @@ def rgb_to_hue_sat(r, g, b):
     return h * 360.0, s, v
 
 
-def scan_rgba(im: Image.Image, max_px: int = 2_000_000):
+def scan_blue_pixels(im: Image.Image, max_px: int = 2_000_000) -> int:
     im = im.convert("RGBA")
     w, h = im.size
     if w * h > max_px:
         scale = (max_px / (w * h)) ** 0.5
         im = im.resize((max(1, int(w * scale)), max(1, int(h * scale))))
     px = im.getdata()
-    blue = off = 0
-    samples: set[str] = set()
+    blue = 0
     step = max(1, len(px) // 200_000)
     for i in range(0, len(px), step):
         r, g, b, a = px[i]
@@ -134,56 +161,105 @@ def scan_rgba(im: Image.Image, max_px: int = 2_000_000):
         hue, sat, val = rgb_to_hue_sat(r, g, b)
         if 190 <= hue <= 250 and sat > 0.25 and val > 0.12:
             blue += 1
+    return blue
+
+
+def font_parts_ok(family_list: str) -> list[str]:
+    bad: list[str] = []
+    for n in (x.strip().strip("'\"") for x in family_list.split(",")):
+        if not n:
+            continue
+        if FONT_TOKEN_OK.match(n) or re.match(r"^var\(\s*--font", n, re.I):
+            continue
+        bad.append(n)
+    return bad
+
+
+def check_fonts(text: str) -> list[str]:
+    bad: list[str] = []
+    for m in FONT_FAMILY_CSS.finditer(text):
+        bad.extend(font_parts_ok(m.group(1)))
+    for m in FONT_FAMILY_ATTR.finditer(text):
+        bad.extend(font_parts_ok(m.group(1)))
+    for m in FONT_SHORTHAND.finditer(text):
+        bad.extend(font_parts_ok(m.group(1)))
+    return bad
+
+
+def check_radius(text: str, is_svg: bool = True) -> list[str]:
+    """Always scan CSS border-radius and any <rect rx|ry> (incl. inline SVG)."""
+    bad: list[str] = []
+    for m in BORDER_RADIUS.finditer(text):
+        val = m.group(1).strip()
+        if not RADIUS_ZERO.match(val):
+            bad.append(f"border-radius:{val}")
+    # is_svg kept for callers; always scan rect attrs (inline SVG in HTML/TSX too)
+    for m in RECT_RX_RY.finditer(text):
+        attr, val = m.group(1), m.group(2).strip()
+        if val not in {"0", "0px"}:
+            bad.append(f"rect {attr}={val}")
+    return bad
+
+
+def check_source_hex(text: str) -> list[str]:
+    check = re.sub(r"data:image/[^\"']+", "", text)
+    bad: list[str] = []
+    for h in set(re.findall(r"#[0-9A-Fa-f]{3,8}\b", check)):
+        hx = expand(h)
+        if len(hx) != 7:
+            continue
+        if hx == PINK:
+            continue  # owned by check_pink_initials
+        r, g, b = int(hx[1:3], 16), int(hx[3:5], 16), int(hx[5:7], 16)
         if not near_allowed(r, g, b):
-            off += 1
-            if len(samples) < 8:
-                samples.add("#{:02x}{:02x}{:02x}".format(r, g, b))
-    return blue, off, samples
+            bad.append(hx)
+    return bad
 
 
-def scan_svg(path: Path):
+def check_pink_initials(text: str, rel: str) -> list[str]:
+    """Flag #fcb4c4 / var(--pink) uses that are not title-initial contexts."""
+    issues: list[str] = []
+    # Token definitions themselves are OK
+    if rel.endswith("tokens.css") or rel.endswith("tokens-first-page.css"):
+        return issues
+    # Title-card heroes + Proto project boards: pink first letter / title initial expected
+    if re.search(r"(docs/hero/hero-(light|dark)|(?:^|/)(?:board|hero)-(light|dark))\.svg$", rel):
+        return issues
+    # Find pink hex occurrences with local context
+    for m in re.finditer(r"#fcb4c4|var\(\s*--pink\s*\)", text, re.I):
+        start = max(0, m.start() - 200)
+        end = min(len(text), m.end() + 80)
+        ctx = text[start:end]
+        if PINK_OK_CONTEXT.search(ctx):
+            continue
+        # CSS custom property assignment --pink:#fcb4c4 (allow truncated lookbehind)
+        if re.search(r"--pink\s*:\s*#fcb4c4", ctx, re.I) or re.search(r"pink\s*:\s*#fcb4c4", ctx, re.I):
+            continue
+        issues.append(f"pink-not-initial near: {ctx.replace(chr(10), ' ')[:90]!r}")
+    return issues
+
+
+def scan_svg(path: Path, rel: str):
     text = path.read_text(encoding="utf-8", errors="ignore")
     issues: list[str] = []
     if re.search(r"<text\b", text, re.I):
         issues.append("svg-text")
-    check = re.sub(r"data:image/[^\"']+", "", text)
-    for h in re.findall(r"#[0-9A-Fa-f]{3,8}\b", check):
-        hx = expand(h)
-        if len(hx) != 7:
-            continue
-        r, g, b = int(hx[1:3], 16), int(hx[3:5], 16), int(hx[5:7], 16)
-        if not near_allowed(r, g, b):
-            issues.append("svg-hex:" + hx)
-    blue = off = 0
-    samples: set[str] = set()
+    for hx in check_source_hex(text):
+        issues.append("svg-hex:" + hx)
+    for r in check_radius(text, True):
+        issues.append("radius:" + r)
+    for f in check_fonts(text):
+        issues.append("font:" + f)
+    for p in check_pink_initials(text, rel):
+        issues.append("pink:" + p)
+    blue = 0
     for m in re.finditer(r"data:image/(png|jpeg|jpg|webp);base64,([A-Za-z0-9+/=]+)", text):
         try:
             raw = base64.b64decode(m.group(2))
-            im = Image.open(io.BytesIO(raw))
-            b, o, s = scan_rgba(im)
-            blue += b
-            off += o
-            samples |= s
+            blue += scan_blue_pixels(Image.open(io.BytesIO(raw)))
         except Exception as e:
             issues.append("embed-err:" + str(e)[:60])
-    return blue, off, samples, issues
-
-
-FONT_FAMILY_RE = re.compile(r"font-family\s*:\s*([^;}\n]+)", re.I)
-
-
-def check_css_fonts(path: Path) -> list[str]:
-    text = path.read_text(encoding="utf-8", errors="ignore")
-    bad: list[str] = []
-    for m in FONT_FAMILY_RE.finditer(text):
-        for n in (x.strip().strip("'\"") for x in m.group(1).split(",")):
-            if not n or n.startswith("var("):
-                continue
-            if ALLOWED_FONT_OK.match(n) or ALLOWED_FONT_OK.match(n.split()[0]):
-                continue
-            if BAD_FONT.search(n):
-                bad.append(n)
-    return bad
+    return blue, issues
 
 
 def main() -> int:
@@ -194,35 +270,60 @@ def main() -> int:
     failures: list[str] = []
     for p in iter_files():
         rel = p.relative_to(ROOT).as_posix()
-        if p.suffix.lower() in {".css", ".html", ".js", ".tsx", ".ts", ".mjs", ".svg"}:
-            if not is_allowlisted(p, allow) and p.suffix.lower() != ".svg":
-                bad = check_css_fonts(p)
-                if bad:
-                    failures.append(f"FONT {rel}: {sorted(set(bad))}")
-        if p.suffix.lower() not in IMG_EXT:
+        suf = p.suffix.lower()
+
+        if suf in TEXT_EXT:
+            if not is_allowlisted(p, allow):
+                try:
+                    text = p.read_text(encoding="utf-8", errors="ignore")
+                except Exception as e:
+                    failures.append(f"ERROR {rel}: {e}")
+                    continue
+                if suf != ".svg":
+                    for f in check_fonts(text):
+                        failures.append(f"FONT {rel}: {f}")
+                    for r in check_radius(text, True):
+                        failures.append(f"RADIUS {rel}: {r}")
+                    for hx in check_source_hex(text):
+                        failures.append(f"HEX {rel}: {hx}")
+                    for pk in check_pink_initials(text, rel):
+                        failures.append(f"PINK {rel}: {pk}")
+
+        if suf not in IMG_EXT:
             continue
         if is_allowlisted(p, allow):
             continue
         try:
-            if p.suffix.lower() == ".svg":
-                blue, off, samples, issues = scan_svg(p)
+            if suf == ".svg":
+                blue, issues = scan_svg(p, rel)
                 if "svg-text" in issues:
                     failures.append(f"SVG_TEXT {rel}: unoutlined <text>")
                 for iss in issues:
                     if iss.startswith("svg-hex:"):
                         failures.append(f"HEX {rel}: {iss.split(':', 1)[1]}")
+                    elif iss.startswith("radius:"):
+                        failures.append(f"RADIUS {rel}: {iss.split(':', 1)[1]}")
+                    elif iss.startswith("font:"):
+                        failures.append(f"FONT {rel}: {iss.split(':', 1)[1]}")
+                    elif iss.startswith("pink:"):
+                        failures.append(f"PINK {rel}: {iss.split(':', 1)[1]}")
                 if blue > 12:
                     failures.append(f"BLUE {rel}: ~{blue} blue samples")
-                if off > 80:
-                    failures.append(f"OFFPALETTE {rel}: ~{off} {sorted(samples)[:6]}")
             else:
-                blue, off, samples = scan_rgba(Image.open(p))
+                blue = scan_blue_pixels(Image.open(p))
                 if blue > 12:
                     failures.append(f"BLUE {rel}: ~{blue} blue samples")
-                if off > 80:
-                    failures.append(f"OFFPALETTE {rel}: ~{off} {sorted(samples)[:6]}")
         except Exception as e:
             failures.append(f"ERROR {rel}: {e}")
+
+    seen = set()
+    uniq = []
+    for f in failures:
+        if f not in seen:
+            seen.add(f)
+            uniq.append(f)
+    failures = uniq
+
     print(f"allowed_hex={sorted(ALLOWED_HEX)}")
     print(f"allowlist={len(allow)} failures={len(failures)}")
     for f in failures:

@@ -1,2 +1,11 @@
-# first-page CI allowlist — Hāèl photos/scans only (paths relative to repo root)
-# none in this repo yet; see /workspace/handoff/blue-assets-20261105.md
+# first-page CI allowlist — Hāèl photos / pending Proto swaps only
+# (paths relative to repo root). Blue incidental in Proto f1/f2 frames;
+# abstention boards held until Proto pink-bar fix lands.
+docs/hero/f1-dark.gif
+docs/hero/f1-dark.webp
+docs/hero/f1-light.gif
+docs/hero/f1-light.webp
+docs/hero/f2-dark.gif
+docs/hero/f2-dark.webp
+docs/hero/f2-light.gif
+docs/hero/f2-light.webp

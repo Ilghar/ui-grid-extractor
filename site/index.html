@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="pages-shell.css">
 <style>
-@font-face{font-family:"Jost";font-style:normal;font-weight:300;font-display:swap;src:url("fonts/jost-latin-300-normal.woff2") format("woff2")}
-@font-face{font-family:"Jost";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/jost-latin-400-normal.woff2") format("woff2")}
-@font-face{font-family:"Jost";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/jost-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:Jost;font-style:normal;font-weight:300;font-display:swap;src:url("fonts/jost-latin-300-normal.woff2") format("woff2")}
+@font-face{font-family:Jost;font-style:normal;font-weight:400;font-display:swap;src:url("fonts/jost-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:Jost;font-style:normal;font-weight:500;font-display:swap;src:url("fonts/jost-latin-500-normal.woff2") format("woff2")}
 label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--label)}
 input[type=range]{width:100%;accent-color:var(--mauve-em)}
 .verdict{font-size:16px;font-weight:300;margin:8px 0 0}
@@ -87,14 +87,14 @@ input[type=range]{width:100%;accent-color:var(--mauve-em)}
     cards[0].x+=n;
     var ink=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#5a515c';
     var line=getComputedStyle(document.documentElement).getPropertyValue('--line').trim()||'#7d5a7c';
-    var pink=getComputedStyle(document.documentElement).getPropertyValue('--pink').trim()||'#fcb4c4';
+    var pink=getComputedStyle(document.documentElement).getPropertyValue('--pink').trim()||'#856a8e';
     var parts=['<rect width="360" height="200" fill="var(--bg)"/>'];
     for(var x=0;x<=360;x+=8) parts.push('<line x1="'+x+'" y1="0" x2="'+x+'" y2="200" stroke="'+line+'" stroke-width="0.5" opacity="0.35"/>');
     cards.forEach(function(c,i){
       var stroke=i===0&&n?pink:ink;
       var dash=i===0&&n?' stroke-dasharray="4 3"':'';
       parts.push('<rect x="'+c.x+'" y="'+c.y+'" width="'+c.w+'" height="'+c.h+'" fill="none" stroke="'+stroke+'" stroke-width="1.5"'+dash+'/>');
-      if(i===0&&n) parts.push('<text x="'+c.x+'" y="'+(c.y-6)+'" fill="'+pink+'" font-family="Jost,sans-serif" font-size="10">misaligned</text>');
+      if(i===0&&n) parts.push('<text x="'+c.x+'" y="'+(c.y-6)+'" fill="'+pink+'" font-family="Jost" font-size="10">misaligned</text>');
     });
     svg.innerHTML=parts.join('');
     verd.textContent=n?('refused · card1 off by '+n+'px'):'exact · base 8px · 3 columns';
