@@ -221,8 +221,8 @@ def css_tokens(r):
 
 
 THEMES = {  # from Ilghar/ilghar-studio src/styles.css (:root and .dark)
-    "light": {"canvas": "#f3f1f6", "ink": "#4a3a5c", "muted": "#7a688c", "subtle": "#a394ae", "accent": "#c97a98"},
-    "dark": {"canvas": "#4a434c", "ink": "#f4eef3", "muted": "#cbbdce", "subtle": "#9a8a9c", "accent": "#e8a8bc"},
+    "light": {"canvas": "#f3f1f6", "ink": "#473448", "muted": "#7d5a7c", "subtle": "#a6a1a7", "accent": "#856a8e"},
+    "dark": {"canvas": "#473448", "ink": "#f4eef3", "muted": "#cbbdce", "subtle": "#a6a1a7", "accent": "#e8a8bc"},
 }
 
 
