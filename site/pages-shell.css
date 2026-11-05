@@ -1,0 +1,121 @@
+/* LAYOUT.md shell — load after tokens.css. Aliases + 12-col + theme toggle. */
+:root{
+  --canvas:var(--bg); --surface:var(--bg); --accent:var(--mauve-em); --accent-fg:var(--paper);
+  --accent-dot:#856a8e; --ring:var(--mauve-line); --muted:var(--grey); --subtle:var(--grey-soft);
+  --font-sans:var(--font); --title-lat-family:var(--font); --title-lat-weight:400;
+  --label-weight:400; --figure-bg:var(--bg);
+}
+@media (prefers-color-scheme:dark){
+  :root{--accent-fg:var(--card); --canvas:var(--bg); --surface:var(--bg);}
+}
+[data-theme=dark]{
+  --bg:var(--card); --fg:var(--on-dark); --head:var(--on-dark); --label:var(--grey-soft); --line:var(--mauve-em);
+  --canvas:var(--bg); --surface:var(--bg); --accent-fg:var(--card);
+}
+[data-theme=light]{
+  --bg:var(--paper); --fg:var(--ink); --head:var(--plum); --label:var(--mauve-label); --line:var(--mauve-line);
+  --canvas:var(--bg); --surface:var(--bg); --accent-fg:var(--paper);
+}
+html,body{background:var(--bg);color:var(--fg)}
+.ilg-case{min-height:100dvh;background:var(--bg);color:var(--fg)}
+main{
+  max-width:var(--col);margin:0 auto;padding:24px 24px 64px;
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;row-gap:0;
+}
+@media (max-width:600px){main{padding:20px 20px 48px}}
+main>*{grid-column:1/-1}
+.span12{grid-column:1/-1}
+.span6{grid-column:span 6}
+.span4{grid-column:span 4}
+@media (max-width:600px){.span6,.span4{grid-column:1/-1}}
+.grid-66{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid-444{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+@media (max-width:600px){.grid-66,.grid-444{grid-template-columns:1fr}}
+header.site{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 24px}
+.brand-label{font-size:12px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin:0}
+.theme-toggle,.ilg-theme-toggle{
+  font:inherit;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg);
+  background:transparent;border:1px solid var(--line);border-radius:0;padding:.35rem .7rem;cursor:pointer;
+}
+.theme-toggle:focus-visible,.ilg-theme-toggle:focus-visible{outline:2px solid var(--line);outline-offset:2px}
+.hero{text-align:left;margin:0 0 24px}
+.hero .name,.hero h1{
+  font-size:40px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--head);margin:0;
+}
+@media (max-width:600px){.hero .name,.hero h1{font-size:30px}}
+.hero .first,.hero .initial{color:var(--pink)}
+.hero .title{display:block;margin-top:8px;font-weight:500;font-size:.95rem;letter-spacing:.18em;text-transform:uppercase;color:var(--label)}
+.hero .sub{font-size:17px;font-weight:300;color:var(--fg);margin:12px 0 0;max-width:64ch}
+.hero .sub span+span::before{content:" | ";color:var(--line)}
+.badge,.status{
+  display:inline-block;margin-top:12px;border:1px solid var(--line);padding:.15rem .65rem;
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);border-radius:0;
+}
+.frame{border:1px solid var(--line);border-radius:0;box-shadow:none;background:var(--bg);width:100%;margin:0;padding:0;overflow:hidden}
+.frame>img,.frame>canvas,.frame>iframe,.frame>svg,.frame>picture{display:block;width:100%;height:auto;border:0;border-radius:0}
+.frame.r83{aspect-ratio:8/3}
+.frame.r1610{aspect-ratio:16/10}
+.frame.r43{aspect-ratio:4/3}
+.frame.r83>*,.frame.r1610>*,.frame.r43>*{width:100%;height:100%;object-fit:cover}
+.frame.placeholder{min-height:0;display:block;background:var(--bg)}
+figure{margin:0}
+figcaption,.cap{
+  margin-top:8px;font-size:12px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--label);
+}
+h2{font-weight:400;font-size:23px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);
+  border-top:1px solid var(--line);padding-top:.8em;margin:0 0 24px}
+.card{border:1px solid var(--line);border-radius:0;box-shadow:none;background:var(--bg);padding:16px;margin:0}
+.card h3{font-size:12px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin:0 0 8px}
+.card p{margin:0;font-size:16px;font-weight:300;max-width:64ch}
+ul.dots{list-style:none;padding:0;margin:0}
+ul.dots li{margin:0 0 12px;font-size:16px;font-weight:300;max-width:64ch}
+ul.dots li::before{content:"• ";color:#856a8e}
+a{color:var(--mauve-em)}
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--label)}
+/* kill legacy shadows/radii from any leftover inline */
+.ilg-frame{border:1px solid var(--line);border-radius:0;box-shadow:none;background:var(--bg);padding:0;overflow:hidden;width:100%}
+.board{margin:0}
+.board img,.board picture{border-radius:0;box-shadow:none!important}
+
+/* hero art: SVG has its own border — no outer .frame */
+.hero-art{display:block;width:100%;max-width:100%;aspect-ratio:8/3;margin:0;padding:0;border:0!important;outline:0;overflow:hidden;background:transparent;border-radius:0;box-shadow:none;position:relative}
+.hero-art img{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;max-height:none;object-fit:fill;border:0;border-radius:0}
+figure.span12 > .hero-art, figure.hero > .hero-art{width:100%}
+
+
+/* section rhythm — exactly 64px (48px ≤600); no extra h2 top margin */
+section{margin-top:64px;margin-bottom:0}
+@media (max-width:600px){section{margin-top:48px}}
+figure.span12{margin:0}
+
+/* Live demo frames: full width, height follows content — no forced 16:10.
+   Hero .hero-art stays 8:3; boards/cards keep .r1610 / .r43. */
+section[aria-label="Live function"] .frame,
+.frame.live,
+#app-frame{
+  aspect-ratio:auto;
+  height:auto;
+  min-height:0;
+}
+section[aria-label="Live function"] .frame > *,
+.frame.live > *,
+#app-frame > *{
+  width:100%;
+  height:auto;
+  max-height:none;
+  object-fit:unset;
+  position:static;
+}
+section[aria-label="Live function"] .frame iframe,
+.frame.live iframe{
+  display:block;
+  width:100%;
+  height:auto;
+  min-height:480px;
+  border:0;
+  position:static;
+}
+@media (max-width:600px){
+  section[aria-label="Live function"] .frame iframe,
+  .frame.live iframe{min-height:520px}
+}

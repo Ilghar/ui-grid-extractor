@@ -11,13 +11,13 @@
     "Ilghar/ilghar-studio src/styles.css"
   ],
   "palette_verified": {
-    "canvas": "#f3f1f6",
-    "surface": "#fffcfe",
+    "canvas": "#f9fafb",
+    "surface": "#f9fafb",
     "ink": "#473448",
     "muted": "#7d5a7c",
     "subtle": "#a6a1a7",
     "accent": "#856a8e",
-    "line": "#e4dde8",
+    "line": "#a6a1a7",
     "font_sans": "Jost",
     "font_display": "Jost"
   },
