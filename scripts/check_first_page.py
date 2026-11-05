@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """First-page CI: radius 0, no SVG <text>, fonts Jost/Vazirmatn/var(--font*) only,
-off-palette #hex in source, blue pixels in rasters/SVG embeds,
-pink #fcb4c4 only on title initials.
+off-palette #hex in source, blue pixels in rasters/SVG embeds.
 
-Why earlier misses (fixed here):
-1. No border-radius / rect rx|ry check at all.
-2. Font allowlist permitted system-ui, sans-serif, Arial, monospace, etc.
-3. Font scan used only `font-family:` (CSS) and skipped .svg files, so SVG
-   `font-family="..."` attributes were never checked.
-4. SVG <text> was detected, but CI noise from off-palette *pixel* sampling of
-   photos drowned the signal; hex check is now source-#hex only, blue is pixels.
-5. Pink #fcb4c4 was unrestricted; now only title-initial contexts are allowed.
+Pink #fcb4c4 (exact only) PASS when:
+  (a) title first letter (.first / ::first-letter / title-initial),
+  (b) the "i" in the ilghar.studio wordmark,
+  (c) accents inside illustration SVGs or Persian marks (امتناع).
+FAIL: pink tints / near-pink (not exact #fcb4c4), pink with opacity/alpha,
+pink in body text, pink in UI chrome (buttons, borders, inputs, nav) or
+backgrounds, and any blue.
 """
 from __future__ import annotations
 
@@ -20,6 +18,7 @@ import colorsys
 import io
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 try:
@@ -46,6 +45,7 @@ FALLBACK_HEX = {
     "#948e95", "#a6a1a7", "#fcb4c4", "#2a272d", "#d4d2d2",
 }
 PINK = "#fcb4c4"
+PINK_RGB = (0xFC, 0xB4, 0xC4)
 
 FONT_TOKEN_OK = re.compile(
     r"^(jost|vazirmatn|var\(\s*--font[a-z0-9-]*\s*(\s*,\s*[^)]+)?\))$",
@@ -63,12 +63,35 @@ FONT_SHORTHAND = re.compile(
 BORDER_RADIUS = re.compile(r"border-radius\s*:\s*([^;}\n]+)", re.I)
 RECT_RX_RY = re.compile(r"<rect\b[^>]*?\b(rx|ry)\s*=\s*[\"']([^\"']+)[\"']", re.I | re.S)
 
-# Title-initial contexts where #fcb4c4 / var(--pink) is allowed
+# PASS contexts for exact #fcb4c4 / var(--pink)
 PINK_OK_CONTEXT = re.compile(
-    r"(\.first\b|::first-letter|first-letter|--pink\s*:|"
+    r"("
+    r"\.first\b|::first-letter|first-letter|"
     r"title.?initial|pink.?initial|span\.first|h1\s+\.first|"
     r"\.name\s+\.first|\.hero\s+\.first|"
-    r"class(?:Name)?=\"[^\"]*\bfirst\b)",
+    r"class(?:Name)?=\"[^\"]*\bfirst\b|"
+    r"wordmark|\.wm-i\b|\.brand-i\b|ilghar[^\n]{0,40}\.first|"
+    r"امتناع|"
+    r"--pink\s*:"
+    r")",
+    re.I,
+)
+
+# FAIL even if near an OK cue: body copy, UI chrome, backgrounds
+PINK_FAIL_CONTEXT = re.compile(
+    r"("
+    r"background(?:-color)?\s*:|"
+    r"border(?:-color)?\s*:|"
+    r"\bbutton\b|\.btn\b|\.button\b|"
+    r"\binput\b|\.input\b|\bnav\b|\.nav\b|"
+    r"\bbody\b|\.body-text\b|\.prose\b|"
+    r"opacity\s*:|color-mix\("
+    r")",
+    re.I,
+)
+
+ILLUSTRATION_SVG = re.compile(
+    r"(?:^|/)(?:docs/hero/|assets/)?(?:hero|board|og|illustration|mark)[^/]*\.svg$",
     re.I,
 )
 
@@ -106,6 +129,18 @@ def near_allowed(r: int, g: int, b: int, tol: int = 18) -> bool:
         if abs(ar - r) + abs(ag - g) + abs(ab - b) <= tol:
             return True
     return False
+
+
+def is_pink_tint(r: int, g: int, b: int) -> bool:
+    """Pinkish hue that is not exact #fcb4c4."""
+    if (r, g, b) == PINK_RGB:
+        return False
+    h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+    hue = h * 360.0
+    # pink/rose band
+    if s < 0.15 or v < 0.35:
+        return False
+    return (hue >= 320 or hue <= 20)
 
 
 def load_allowlist() -> set[str]:
@@ -187,13 +222,11 @@ def check_fonts(text: str) -> list[str]:
 
 
 def check_radius(text: str, is_svg: bool = True) -> list[str]:
-    """Always scan CSS border-radius and any <rect rx|ry> (incl. inline SVG)."""
     bad: list[str] = []
     for m in BORDER_RADIUS.finditer(text):
         val = m.group(1).strip()
         if not RADIUS_ZERO.match(val):
             bad.append(f"border-radius:{val}")
-    # is_svg kept for callers; always scan rect attrs (inline SVG in HTML/TSX too)
     for m in RECT_RX_RY.finditer(text):
         attr, val = m.group(1), m.group(2).strip()
         if val not in {"0", "0px"}:
@@ -205,37 +238,57 @@ def check_source_hex(text: str) -> list[str]:
     check = re.sub(r"data:image/[^\"']+", "", text)
     bad: list[str] = []
     for h in set(re.findall(r"#[0-9A-Fa-f]{3,8}\b", check)):
-        hx = expand(h)
+        raw = h.lower()
+        # 8-digit / alpha on pink → fail
+        if len(raw) == 9 and raw[:7] == PINK:
+            bad.append(f"pink-alpha:{raw}")
+            continue
+        hx = expand(raw)
         if len(hx) != 7:
             continue
         if hx == PINK:
-            continue  # owned by check_pink_initials
+            continue  # owned by check_pink
         r, g, b = int(hx[1:3], 16), int(hx[3:5], 16), int(hx[5:7], 16)
+        if is_pink_tint(r, g, b):
+            bad.append(f"pink-tint:{hx}")
+            continue
         if not near_allowed(r, g, b):
             bad.append(hx)
     return bad
 
 
-def check_pink_initials(text: str, rel: str) -> list[str]:
-    """Flag #fcb4c4 / var(--pink) uses that are not title-initial contexts."""
+def check_pink(text: str, rel: str) -> list[str]:
+    """Exact #fcb4c4 / var(--pink) only in allowed accent contexts."""
     issues: list[str] = []
-    # Token definitions themselves are OK
     if rel.endswith("tokens.css") or rel.endswith("tokens-first-page.css"):
         return issues
-    # Title-card heroes + Proto project boards: pink first letter / title initial expected
-    if re.search(r"(docs/hero/hero-(light|dark)|(?:^|/)(?:board|hero)-(light|dark))\.svg$", rel):
+    # Illustration SVGs may use exact pink accents freely
+    if rel.endswith(".svg") and ILLUSTRATION_SVG.search(rel):
         return issues
-    # Find pink hex occurrences with local context
+    # Also allow any svg under docs/hero or assets that looks like board/hero
+    if rel.endswith(".svg") and re.search(r"(?:^|/)(?:docs/hero|assets)/(?:hero|board)", rel):
+        return issues
+
     for m in re.finditer(r"#fcb4c4|var\(\s*--pink\s*\)", text, re.I):
-        start = max(0, m.start() - 200)
-        end = min(len(text), m.end() + 80)
+        start = max(0, m.start() - 220)
+        end = min(len(text), m.end() + 100)
         ctx = text[start:end]
+        # Alpha / opacity / color-mix on pink → fail
+        if re.search(r"#fcb4c4[0-9a-fA-F]{2}\b", ctx) or re.search(
+            r"(opacity\s*:\s*[^;]+|color-mix\([^)]*#fcb4c4|rgba?\(\s*252\s*,\s*180\s*,\s*196\s*,)",
+            ctx,
+            re.I,
+        ):
+            issues.append(f"pink-alpha near: {ctx.replace(chr(10), ' ')[:90]!r}")
+            continue
+        if PINK_FAIL_CONTEXT.search(ctx):
+            issues.append(f"pink-ui-or-body near: {ctx.replace(chr(10), ' ')[:90]!r}")
+            continue
         if PINK_OK_CONTEXT.search(ctx):
             continue
-        # CSS custom property assignment --pink:#fcb4c4 (allow truncated lookbehind)
         if re.search(r"--pink\s*:\s*#fcb4c4", ctx, re.I) or re.search(r"pink\s*:\s*#fcb4c4", ctx, re.I):
             continue
-        issues.append(f"pink-not-initial near: {ctx.replace(chr(10), ' ')[:90]!r}")
+        issues.append(f"pink-not-accent near: {ctx.replace(chr(10), ' ')[:90]!r}")
     return issues
 
 
@@ -250,7 +303,7 @@ def scan_svg(path: Path, rel: str):
         issues.append("radius:" + r)
     for f in check_fonts(text):
         issues.append("font:" + f)
-    for p in check_pink_initials(text, rel):
+    for p in check_pink(text, rel):
         issues.append("pink:" + p)
     blue = 0
     for m in re.finditer(r"data:image/(png|jpeg|jpg|webp);base64,([A-Za-z0-9+/=]+)", text):
@@ -262,10 +315,51 @@ def scan_svg(path: Path, rel: str):
     return blue, issues
 
 
+def run_broken_samples() -> list[str]:
+    """Prove body-text pink and background pink both FAIL; first-letter PASS."""
+    fails: list[str] = []
+    body = "p.copy { color: #fcb4c4; } /* body text */\n"
+    bg = ".panel { background: #fcb4c4; } /* background */\n"
+    border = "button.cta { border-color: #fcb4c4; }\n"
+    tint = ".x { color: #ffb3c3; } /* pink tint */\n"
+    alpha = ".x { color: #fcb4c480; }\n"
+    ok = ".name .first { color: #fcb4c4; /* title initial */ }\n"
+
+    def hit(label, src, expect_fail: bool):
+        found = check_pink(src, f"broken/{label}.css") + [
+            x for x in check_source_hex(src) if "pink" in x or x.startswith("#")
+        ]
+        # For tint/alpha, hex checker carries the signal
+        if label in ("tint", "alpha"):
+            found = check_source_hex(src)
+        ok_pass = (len(found) > 0) if expect_fail else (len(found) == 0)
+        if not ok_pass:
+            fails.append(f"BROKEN_SAMPLE {label}: expected_fail={expect_fail} got={found}")
+        else:
+            print(f"broken-sample {label}: ok (fail={expect_fail}, hits={len(found)})")
+
+    hit("body", body, True)
+    hit("background", bg, True)
+    hit("border-ui", border, True)
+    hit("tint", tint, True)
+    hit("alpha", alpha, True)
+    hit("first-letter", ok, False)
+    return fails
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--report", type=Path, default=None)
+    ap.add_argument("--self-test", action="store_true", help="run broken pink samples and exit")
     args = ap.parse_args()
+
+    if args.self_test:
+        fails = run_broken_samples()
+        for f in fails:
+            print(f)
+        print(f"self-test failures={len(fails)}")
+        return 1 if fails else 0
+
     allow = load_allowlist()
     failures: list[str] = []
     for p in iter_files():
@@ -285,8 +379,11 @@ def main() -> int:
                     for r in check_radius(text, True):
                         failures.append(f"RADIUS {rel}: {r}")
                     for hx in check_source_hex(text):
-                        failures.append(f"HEX {rel}: {hx}")
-                    for pk in check_pink_initials(text, rel):
+                        if hx.startswith("pink-"):
+                            failures.append(f"PINK {rel}: {hx}")
+                        else:
+                            failures.append(f"HEX {rel}: {hx}")
+                    for pk in check_pink(text, rel):
                         failures.append(f"PINK {rel}: {pk}")
 
         if suf not in IMG_EXT:
@@ -300,7 +397,11 @@ def main() -> int:
                     failures.append(f"SVG_TEXT {rel}: unoutlined <text>")
                 for iss in issues:
                     if iss.startswith("svg-hex:"):
-                        failures.append(f"HEX {rel}: {iss.split(':', 1)[1]}")
+                        val = iss.split(":", 1)[1]
+                        if val.startswith("pink-"):
+                            failures.append(f"PINK {rel}: {val}")
+                        else:
+                            failures.append(f"HEX {rel}: {val}")
                     elif iss.startswith("radius:"):
                         failures.append(f"RADIUS {rel}: {iss.split(':', 1)[1]}")
                     elif iss.startswith("font:"):
