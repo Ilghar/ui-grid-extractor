@@ -77,3 +77,9 @@ footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);font-si
 .ilg-frame{border:1px solid var(--line);border-radius:0;box-shadow:none;background:var(--bg);padding:0;overflow:hidden;width:100%}
 .board{margin:0}
 .board img,.board picture{border-radius:0;box-shadow:none!important}
+
+/* hero art: SVG has its own border — no outer .frame */
+.hero-art{display:block;width:100%;max-width:100%;aspect-ratio:8/3;margin:0;padding:0;border:0!important;outline:0;overflow:hidden;background:transparent;border-radius:0;box-shadow:none;position:relative}
+.hero-art img{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;max-height:none;object-fit:fill;border:0;border-radius:0}
+figure.span12 > .hero-art, figure.hero > .hero-art{width:100%}
+
