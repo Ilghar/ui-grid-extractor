@@ -15,7 +15,10 @@ input[type=range]{width:100%;accent-color:var(--mauve-em)}
 .verdict{font-size:16px;font-weight:300;margin:8px 0 0}
 .live-pad{padding:16px}
 </style>
-<style>img,svg,picture,video,canvas{max-width:100%;height:auto}figure,picture,.board,.board>*{box-sizing:border-box;max-width:100%;min-width:0}figure{margin-inline:0}</style></head>
+<style>img,svg,picture,video,canvas{max-width:100%;height:auto}figure,picture,.board,.board>*{box-sizing:border-box;max-width:100%;min-width:0}figure{margin-inline:0}
+.frame.r43 picture{width:100%;height:100%;display:block}
+.frame.r43 picture img{width:100%;height:100%;object-fit:cover;display:block}
+</style></head>
 <body>
 <div class="ilg-case">
 <main>
@@ -64,11 +67,11 @@ input[type=range]{width:100%;accent-color:var(--mauve-em)}
     <h2>Project material</h2>
     <div class="grid-66">
       <figure>
-        <div class="frame r43"><img src="card-8px.light.svg" alt="Clean layout overlay: 8px baseline, three columns" width="880" height="560"></div>
+        <div class="frame r43"><picture class="theme-src" data-light="card-8px.light.svg" data-dark="card-8px.dark.svg"><source media="(prefers-color-scheme: dark)" srcset="card-8px.dark.svg"><img src="card-8px.light.svg" alt="Clean layout overlay: 8px baseline, three columns" width="880" height="560"></picture></div>
         <figcaption>Clean fixture</figcaption>
       </figure>
       <figure>
-        <div class="frame r43"><img src="card-misaligned.light.svg" alt="Overlay with card1 dashed and labelled misaligned" width="880" height="560"></div>
+        <div class="frame r43"><picture class="theme-src" data-light="card-misaligned.light.svg" data-dark="card-misaligned.dark.svg"><source media="(prefers-color-scheme: dark)" srcset="card-misaligned.dark.svg"><img src="card-misaligned.light.svg" alt="Overlay with card1 dashed and labelled misaligned" width="880" height="560"></picture></div>
         <figcaption>Misaligned card1</figcaption>
       </figure>
     </div>
@@ -85,7 +88,7 @@ input[type=range]{width:100%;accent-color:var(--mauve-em)}
 </main>
 </div>
 <script>
-(function(){var r=document.documentElement;var b=document.querySelector(".theme-toggle");if(!b)return;var k="ilg-theme";var m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");var s=null;try{s=localStorage.getItem(k)}catch(e){}function dark(){var t=r.getAttribute("data-theme");return t?t==="dark":!!(m&&m.matches)}function sync(){var d=dark();b.setAttribute("aria-pressed",String(d));b.textContent=d?"Light mode":"Dark mode";var root=document.querySelector(".ilg-case");if(d){root.setAttribute("data-theme","dark");r.setAttribute("data-theme","dark")}else{root.setAttribute("data-theme","light");r.setAttribute("data-theme","light")}}if(s==="dark"||s==="light"){r.setAttribute("data-theme",s);document.querySelector(".ilg-case").setAttribute("data-theme",s)}sync();if(m&&m.addEventListener)m.addEventListener("change",sync);b.addEventListener("click",function(){var n=dark()?"light":"dark";r.setAttribute("data-theme",n);document.querySelector(".ilg-case").setAttribute("data-theme",n);try{localStorage.setItem(k,n)}catch(e){}sync()})})();
+(function(){var r=document.documentElement;var b=document.querySelector(".theme-toggle");if(!b)return;var k="ilg-theme";var m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");var s=null;try{s=localStorage.getItem(k)}catch(e){}function dark(){var t=r.getAttribute("data-theme");return t?t==="dark":!!(m&&m.matches)}function swapPics(d){document.querySelectorAll("picture.theme-src").forEach(function(p){var img=p.querySelector("img");var src=p.querySelector("source");var light=p.getAttribute("data-light");var darks=p.getAttribute("data-dark");if(src)src.media=d?"all":"not all";if(img&&light&&darks)img.src=d?darks:light})}function sync(){var d=dark();b.setAttribute("aria-pressed",String(d));b.textContent=d?"Light mode":"Dark mode";var root=document.querySelector(".ilg-case");if(d){root.setAttribute("data-theme","dark");r.setAttribute("data-theme","dark")}else{root.setAttribute("data-theme","light");r.setAttribute("data-theme","light")}swapPics(d)}if(s==="dark"||s==="light"){r.setAttribute("data-theme",s);document.querySelector(".ilg-case").setAttribute("data-theme",s)}sync();if(m&&m.addEventListener)m.addEventListener("change",sync);b.addEventListener("click",function(){var n=dark()?"light":"dark";r.setAttribute("data-theme",n);document.querySelector(".ilg-case").setAttribute("data-theme",n);try{localStorage.setItem(k,n)}catch(e){}sync()})})();
 </script>
 <script>
 (function(){

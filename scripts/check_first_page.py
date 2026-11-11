@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """First-page CI (layout v2 / SÁBÁT standard): CSS frame radius 12px,
-column 448/576/672, type scale 24/31 · 23 · 13, fonts Jost/Vazirmatn only,
+column 100%/720/760, type scale 24/31 · 23 · 13, fonts Jost/Vazirmatn only,
 off-palette #hex in source, blue pixels (and blue hex in SVG).
 
 Frame radius is enforced in CSS on .panel / .frame / .card / .ilg-frame only.
@@ -478,8 +478,16 @@ def _px(val: str) -> str | None:
     return m.group(0) if m else None
 
 
+def _css_width(val: str) -> str | None:
+    """Token or declared width: px, or 100% for the phone column."""
+    val = val.strip().lower()
+    if val in {"100%", "100.00%"} or val.startswith("100%"):
+        return "100%"
+    return _px(val)
+
+
 def check_column(css: str) -> list[str]:
-    """Require v2 column widths 448 / 576 / 672px (or --col-s/m/l)."""
+    """Require v2 column: 100% (16px side pad) / 720px (24px pad from 768) / 760px from 1024."""
     issues: list[str] = []
     vs = _var_map(css)
     def resolved(val: str) -> str:
@@ -493,13 +501,17 @@ def check_column(css: str) -> list[str]:
                 return resolved(fallback)
         return val
 
+    def as_width(raw: str) -> str | None:
+        return _css_width(resolved(_clean_decl(raw)))
+
     widths: set[str] = set()
+    pads: set[str] = set()
     if vs.get("col-s") and vs.get("col-m") and vs.get("col-l"):
         for key in ("col-s", "col-m", "col-l"):
-            r = _px(resolved(vs[key]))
+            r = as_width(vs[key])
             if r:
                 widths.add(r)
-    # main { max-width: ... } including media queries
+    # main { max-width: ... } including media queries; also side padding
     for sel, body in css_rules(css):
         parts = [p.strip() for p in sel.split(",") if p.strip()]
         if not any(re.search(r"(^|[^a-z-])main$", _subject(p), re.I) or _subject(p) in {"main"} for p in parts):
@@ -507,20 +519,46 @@ def check_column(css: str) -> list[str]:
             if not any(re.search(r"(^|,)\s*main\s*$", p, re.I) for p in parts):
                 continue
         m = re.search(r"max-width\s*:\s*([^;}\n]+)", body, re.I)
-        if not m:
-            continue
-        r = _px(resolved(_clean_decl(m.group(1))))
-        if r:
-            widths.add(r)
+        if m:
+            r = as_width(m.group(1))
+            if r:
+                widths.add(r)
+        # shorthand padding: top right bottom left, or top/bottom + sides
+        pm = re.search(r"(?<!-)padding\s*:\s*([^;}\n]+)", body, re.I)
+        if pm:
+            parts_p = _clean_decl(pm.group(1)).split()
+            # 1 value: all sides; 2: block inline; 3: top inline bottom; 4: top right bottom left
+            if len(parts_p) == 1:
+                side = parts_p[0]
+            elif len(parts_p) in (2, 3):
+                side = parts_p[1]
+            else:
+                side = parts_p[1]  # right; left is parts_p[3] — require both later
+            r = _css_width(resolved(_clean_decl(side)))
+            if r:
+                pads.add(r)
+            if len(parts_p) == 4:
+                r2 = _css_width(resolved(_clean_decl(parts_p[3])))
+                if r2:
+                    pads.add(r2)
+        for prop in ("padding-left", "padding-right", "padding-inline", "padding-inline-start", "padding-inline-end"):
+            pm = re.search(rf"{prop}\s*:\s*([^;}}\n]+)", body, re.I)
+            if pm:
+                r = _css_width(resolved(_clean_decl(pm.group(1))))
+                if r:
+                    pads.add(r)
     # --col used as the only column (v1)
     if "col" in vs and "col-s" not in vs:
-        r = _px(resolved(vs["col"]))
+        r = as_width(vs["col"])
         if r:
             widths.add(r)
 
-    need = {"448px", "576px", "672px"}
+    need = {"100%", "720px", "760px"}
     if not need.issubset(widths):
-        issues.append(f"column: need 448/576/672px, found {sorted(widths) or 'none'}")
+        issues.append(f"column: need 100%/720/760px, found {sorted(widths) or 'none'}")
+    # Live SÁBÁT: 16px sides on phones, 24px from 768px. Flag if main padding is present but those two are missing.
+    if pads and not {"16px", "24px"}.issubset(pads):
+        issues.append(f"column padding: need 16px and 24px sides, found {sorted(pads)}")
     return issues
 
 
@@ -871,6 +909,12 @@ SKIP_IMG = re.compile(
     r"(favicon|apple-touch-icon|icon-192|icon-512|site\.webmanifest|/icons/)",
     re.I,
 )
+# DESIGNER photo allowlist: these stay as a single source (no dark variant).
+# They are exempt from the no-dark-source rule only; the blue check still runs.
+PHOTO_NO_DARK = re.compile(
+    r"(?:^|/)(?:disagreement\.svg|fact-vs-taste\.svg|sabat-pavilion\.jpe?g)(?:\?|$)",
+    re.I,
+)
 DARK_SOURCE = re.compile(
     r"<source\b[^>]*(?:media=['\"][^'\"]*prefers-color-scheme\s*:\s*dark|srcset=['\"][^'\"]*[-_]dark\b|src=['\"][^'\"]*[-_]dark\b)",
     re.I,
@@ -884,6 +928,8 @@ def _img_src(tag: str) -> str:
 
 def _skip_content_img(tag: str) -> bool:
     src = _img_src(tag)
+    if PHOTO_NO_DARK.search(src):
+        return True
     return bool(SKIP_IMG.search(src) or SKIP_IMG.search(tag))
 
 
@@ -967,8 +1013,9 @@ def run_broken_samples() -> list[str]:
     hit("svg-art-rounded", svg2, False, check_radius)
 
     # Column / type positive and negative
-    v2col = ":root{--col-s:448px;--col-m:576px;--col-l:672px} main{max-width:var(--col-s)} @media (min-width:768px){main{max-width:var(--col-m)}} @media (min-width:1024px){main{max-width:var(--col-l)}}"
+    v2col = ":root{--col-s:100%;--col-m:720px;--col-l:760px} main{max-width:var(--col-s);padding:24px 16px 40px} @media (min-width:768px){main{max-width:var(--col-m);padding:40px 24px 56px}} @media (min-width:1024px){main{max-width:var(--col-l)}}"
     hit("column-v2", v2col, False, check_column)
+    hit("column-old-448", ":root{--col-s:448px;--col-m:576px;--col-l:672px} main{max-width:var(--col-s)}", True, check_column)
     hit("column-v1", ":root{--col:960px} main{max-width:var(--col)}", True, check_column)
     v2type = "h1,.name{font-size:24px} @media (min-width:768px){h1,.name{font-size:31px}} h2{font-size:23px} .label,figcaption{font-size:13px}"
     hit("type-v2", v2type, False, check_type)
@@ -1041,8 +1088,26 @@ def run_broken_samples() -> list[str]:
     )
     hit(
         "img-no-dark",
-        '<img src="sabat-pavilion.jpg" alt="pavilion">',
+        '<img src="hero-light.svg" alt="hero">',
         True,
+        check_content_images,
+    )
+    hit(
+        "img-photo-pavilion",
+        '<img src="sabat-pavilion.jpg" alt="pavilion">',
+        False,
+        check_content_images,
+    )
+    hit(
+        "img-photo-disagreement",
+        '<img src="../assets/disagreement.svg" alt="board">',
+        False,
+        check_content_images,
+    )
+    hit(
+        "img-photo-fact-vs-taste",
+        '<img src="assets/fact-vs-taste.svg" alt="trays">',
+        False,
         check_content_images,
     )
     hit(
