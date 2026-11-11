@@ -26,6 +26,10 @@ are not checked for this colour.
 
 Photo boards named disagreement or fact-vs-taste are palette-allowlisted
 (off-palette colours are ignored) but still run the blue check.
+
+Content images need a light and a dark file, served through <picture> with
+a prefers-color-scheme dark source (and swapped by the theme toggle).
+A content <img> with no dark source FAILs. Favicons and app icons are skipped.
 """
 from __future__ import annotations
 
@@ -860,6 +864,55 @@ def scan_svg(path: Path, rel: str, palette_only: bool = False):
     return blue, issues
 
 
+IMG_TAG = re.compile(r"<img\b[^>]*>", re.I | re.S)
+PICTURE_BLOCK = re.compile(r"<picture\b[^>]*>.*?</picture>", re.I | re.S)
+SRC_ATTR = re.compile(r"""(?:src|srcset)\s*=\s*['"]([^'"]+)['"]""", re.I)
+SKIP_IMG = re.compile(
+    r"(favicon|apple-touch-icon|icon-192|icon-512|site\.webmanifest|/icons/)",
+    re.I,
+)
+DARK_SOURCE = re.compile(
+    r"<source\b[^>]*(?:media=['\"][^'\"]*prefers-color-scheme\s*:\s*dark|srcset=['\"][^'\"]*[-_]dark\b|src=['\"][^'\"]*[-_]dark\b)",
+    re.I,
+)
+
+
+def _img_src(tag: str) -> str:
+    m = re.search(r"""src\s*=\s*['"]([^'"]+)['"]""", tag, re.I)
+    return m.group(1) if m else "(no src)"
+
+
+def _skip_content_img(tag: str) -> bool:
+    src = _img_src(tag)
+    return bool(SKIP_IMG.search(src) or SKIP_IMG.search(tag))
+
+
+def check_content_images(html: str) -> list[str]:
+    """FAIL content <img> with no dark source in a <picture>."""
+    issues: list[str] = []
+    text = re.sub(r"<!--.*?-->", "", html, flags=re.S)
+    covered: list[tuple[int, int]] = []
+    for pic in PICTURE_BLOCK.finditer(text):
+        block = pic.group(0)
+        covered.append((pic.start(), pic.end()))
+        img = IMG_TAG.search(block)
+        src = _img_src(img.group(0)) if img else "(picture)"
+        if img and _skip_content_img(img.group(0)):
+            continue
+        if not DARK_SOURCE.search(block):
+            issues.append(f"picture has no dark source: {src}")
+    def in_picture(pos: int) -> bool:
+        return any(a <= pos < b for a, b in covered)
+    for m in IMG_TAG.finditer(text):
+        if in_picture(m.start()):
+            continue
+        tag = m.group(0)
+        if _skip_content_img(tag):
+            continue
+        issues.append(f"content img has no dark source: {_img_src(tag)}")
+    return issues
+
+
 def run_broken_samples() -> list[str]:
     """Prove body-text pink and background pink both FAIL; first-letter PASS.
     Also: square frame FAIL, 12px frame PASS, wrong font FAIL, Jost PASS,
@@ -986,6 +1039,30 @@ def run_broken_samples() -> list[str]:
         False,
         check_pink_headings,
     )
+    hit(
+        "img-no-dark",
+        '<img src="sabat-pavilion.jpg" alt="pavilion">',
+        True,
+        check_content_images,
+    )
+    hit(
+        "img-picture-dark",
+        '<picture><source media="(prefers-color-scheme: dark)" srcset="hero-dark.svg"><img src="hero-light.svg" alt="hero"></picture>',
+        False,
+        check_content_images,
+    )
+    hit(
+        "img-picture-light-only",
+        '<picture><source media="(prefers-color-scheme: light)" srcset="hero-light.svg"><img src="hero-light.svg" alt="hero"></picture>',
+        True,
+        check_content_images,
+    )
+    hit(
+        "img-favicon-skip",
+        '<img src="/favicon.svg" alt="">',
+        False,
+        check_content_images,
+    )
     return fails
 
 
@@ -1034,6 +1111,9 @@ def main() -> int:
                     if suf in {".css", ".html"}:
                         for iss in check_pink_headings(text):
                             failures.append(f"PINK_HEADING {rel}: {iss}")
+                    if suf == ".html":
+                        for iss in check_content_images(text):
+                            failures.append(f"IMAGE {rel}: {iss}")
 
         if suf not in IMG_EXT:
             continue
