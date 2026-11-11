@@ -14,7 +14,8 @@ Pink #fcb4c4 (exact only) PASS when:
   (a) title first letter (.first / ::first-letter / title-initial),
   (b) the "i" in the ilghar.studio wordmark,
   (c) accents inside illustration SVGs or Persian marks (امتناع),
-  (d) slider thumbs, focus rings, and dark-mode section titles (LAYOUT v2).
+  (d) slider thumbs and focus rings (LAYOUT v2).
+A heading (h1-h6) whose whole text is #fcb4c4 FAILs; only the first letter may be pink.
 FAIL: pink tints / near-pink (not exact #fcb4c4), pink with opacity/alpha,
 pink in body text, pink in UI chrome (buttons, borders, inputs, nav) or
 backgrounds, and any blue.
@@ -100,7 +101,6 @@ PINK_OK_CONTEXT = re.compile(
     r"--pink\s*:|"
     r"focus-visible|outline(?:-color)?\s*:|--ring\b|"
     r"slider-thumb|range-thumb|accent-color|"
-    r"\[data-theme[= ]dark\][^\n{]{0,80}h2|"
     r"ul\.dots|\.dots\s+li::before"
     r")",
     re.I,
@@ -656,6 +656,121 @@ def check_dark_title(css: str) -> list[str]:
     return issues
 
 
+def _mask_dark_blocks(text: str) -> str:
+    out = list(text)
+    for m in DARK_MARKER.finditer(text):
+        brace = text.find("{", m.end())
+        if brace < 0 or "}" in text[m.end() : brace]:
+            continue
+        inner = _consume_brace(text, brace)
+        end = brace + 1 + len(inner)
+        for i in range(m.start(), min(end + 1, len(out))):
+            out[i] = " "
+    return "".join(out)
+
+
+def _vars_in(text: str) -> dict[str, str]:
+    return {m.group(1): m.group(2).strip() for m in re.finditer(r"--([a-z0-9-]+)\s*:\s*([^;}\n]+)", text, re.I)}
+
+
+def _theme_vars(css: str) -> tuple[dict[str, str], dict[str, str]]:
+    text = _strip_css_comments(css)
+    light = _vars_in(_mask_dark_blocks(text))
+    dark = dict(light)
+    for m in DARK_MARKER.finditer(text):
+        brace = text.find("{", m.end())
+        if brace < 0 or "}" in text[m.end() : brace]:
+            continue
+        dark.update(_vars_in(_consume_brace(text, brace)))
+    return light, dark
+
+
+def _resolve_css_val(val: str, vm: dict[str, str], depth: int = 0) -> str:
+    val = _clean_decl(val)
+    if depth > 8:
+        return val
+    m = re.match(r"var\(\s*--([a-z0-9-]+)\s*(?:,([^)]+))?\)", val, re.I)
+    if not m:
+        return val
+    name, fallback = m.group(1), m.group(2)
+    if name in vm:
+        return _resolve_css_val(vm[name], vm, depth + 1)
+    if fallback:
+        return _resolve_css_val(fallback, vm, depth + 1)
+    return val
+
+
+def _is_exact_pink(val: str, vm: dict[str, str]) -> bool:
+    resolved = _norm_css_val(_resolve_css_val(val, vm))
+    if resolved == "#fcb4c4":
+        return True
+    if resolved in {"var(--pink)"}:
+        return True
+    if _norm_css_val(val) == "#fcb4c4":
+        return True
+    return False
+
+
+def _is_whole_heading_sel(part: str) -> bool:
+    """h1-h6 as the element, not a first-letter span or ::first-letter."""
+    if re.search(r"::first-letter", part, re.I):
+        return False
+    last = _subject(part)
+    if re.search(r"(^|\.)(dc|first)$", last, re.I):
+        return False
+    return bool(re.match(r"^h[1-6]$", last, re.I))
+
+
+def _rule_themes(sel: str, in_dark: bool) -> list[str]:
+    compact = re.sub(r"\s+", "", sel)
+    if re.search(r"data-theme=['\"]?light", sel, re.I) or "not([data-theme=dark])" in compact:
+        return ["light"]
+    if in_dark or re.search(r"data-theme=['\"]?dark", sel, re.I):
+        return ["dark"]
+    return ["light", "dark"]
+
+
+def check_pink_headings(css: str) -> list[str]:
+    """FAIL when an h1-h6's whole text is #fcb4c4. First letter may be pink."""
+    issues: list[str] = []
+    text = _strip_css_comments(css)
+    light, dark = _theme_vars(text)
+    maps = {"light": light, "dark": dark}
+
+    def walk(sel: str, body: str, in_dark: bool) -> None:
+        cm = re.search(r"(?<!-)color\s*:\s*([^;}\n]+)", body, re.I)
+        if not cm:
+            return
+        val = cm.group(1).strip()
+        headings = [p.strip() for p in sel.split(",") if p.strip() and _is_whole_heading_sel(p)]
+        if not headings:
+            return
+        for theme in _rule_themes(sel, in_dark):
+            if _is_exact_pink(val, maps[theme]):
+                issues.append(
+                    f"pink-heading: {', '.join(headings)[:80]} color:{_clean_decl(val)} in {theme} "
+                    f"(only the first letter may be #fcb4c4)"
+                )
+                return
+
+    for sel, body in css_rules(text):
+        walk(sel, body, in_dark=bool(re.search(r"data-theme=['\"]?dark", sel, re.I)))
+    for m in DARK_MARKER.finditer(text):
+        brace = text.find("{", m.end())
+        if brace < 0 or "}" in text[m.end() : brace]:
+            continue
+        prefix = text[m.start() : brace].strip()
+        inner = _consume_brace(text, brace)
+        for sel, body in css_rules(prefix + "{" + inner + "}"):
+            walk(sel, body, in_dark=True)
+    seen, uniq = set(), []
+    for i in issues:
+        if i not in seen:
+            seen.add(i)
+            uniq.append(i)
+    return uniq
+
+
 def collect_first_page_css(root: Path) -> str:
     blobs: list[str] = []
     seen: set[Path] = set()
@@ -850,6 +965,27 @@ def run_broken_samples() -> list[str]:
         check_dark_title,
     )
     hit("dark-name-missing", "h1,.name{color:var(--name)} :root{--name:var(--plum)}", True, check_dark_title)
+
+    hit("pink-h2-whole", "h2 { color: #fcb4c4; }", True, check_pink_headings)
+    hit("pink-h1-whole", ":root{--pink:#fcb4c4} h1{color:var(--pink)}", True, check_pink_headings)
+    hit(
+        "pink-h2-first-letter",
+        "h2::first-letter, h2 .first, h2 .dc { color: #fcb4c4; }",
+        False,
+        check_pink_headings,
+    )
+    hit(
+        "pink-h2-via-sec-dark",
+        "[data-theme=dark]{--sec:var(--pink);--pink:#fcb4c4} h2{color:var(--sec)}",
+        True,
+        check_pink_headings,
+    )
+    hit(
+        "h2-grey-soft-dark",
+        ":root{--sec:#7d5a7c;--grey-soft:#a6a1a7} [data-theme=dark]{--sec:var(--grey-soft)} h2{color:var(--sec)}",
+        False,
+        check_pink_headings,
+    )
     return fails
 
 
@@ -895,6 +1031,9 @@ def main() -> int:
                             failures.append(f"HEX {rel}: {hx}")
                     for pk in check_pink(text, rel):
                         failures.append(f"PINK {rel}: {pk}")
+                    if suf in {".css", ".html"}:
+                        for iss in check_pink_headings(text):
+                            failures.append(f"PINK_HEADING {rel}: {iss}")
 
         if suf not in IMG_EXT:
             continue
@@ -936,6 +1075,8 @@ def main() -> int:
             failures.append(f"TYPE {iss}")
         for iss in check_dark_title(page_css):
             failures.append(f"DARK_TITLE {iss}")
+        for iss in check_pink_headings(page_css):
+            failures.append(f"PINK_HEADING {iss}")
 
     seen = set()
     uniq = []
