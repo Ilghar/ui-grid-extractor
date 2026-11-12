@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="synthetic/card-8px-svg" width="376" height="400">
+  <text id="title" x="24" y="64" data-top="32" data-w="320" data-h="40" font-size="25">Title</text>
+  <g transform="translate(24,96)">
+    <rect id="card0" x="0" y="0" width="96" height="128"/>
+    <rect id="card1" x="112" y="0" width="96" height="128"/>
+    <rect id="card2" x="224" y="0" width="96" height="128"/>
+  </g>
+  <text id="lead" x="24" y="268" data-top="248" data-w="320" data-h="24" font-size="20">Lead</text>
+  <text id="body" x="24" y="312" data-top="296" data-w="320" data-h="48" font-size="16">Body</text>
+  <text id="meta" x="24" y="380" data-top="368" data-w="200" data-h="16" font-size="12.8">Meta</text>
+  <rect id="rot" x="0" y="0" width="8" height="8" transform="rotate(45)"/>
+  <text id="free" x="10" y="10">no declared box</text>
+</svg>
