@@ -215,7 +215,10 @@ def tokens(r):
 def css_tokens(r):
     lines = [":root {"]
     for k, v in r["tokens"].items():
-        lines.append("  --%s: %s;" % (k.replace(".", "-"), v))
+        name = k.replace(".", "-")
+        if name.startswith("font-"):
+            name = "type-" + name[len("font-"):]
+        lines.append("  --%s: %s;" % (name, v))
     lines.append("}")
     return "\n".join(lines) + "\n"
 

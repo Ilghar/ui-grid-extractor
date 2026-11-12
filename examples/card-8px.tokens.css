@@ -4,9 +4,9 @@
   --grid-pitch: 112px;
   --grid-margin: 24px;
   --grid-columns: 3;
-  --font-size-0: 12.8px;
-  --font-size-1: 16px;
-  --font-size-2: 20px;
-  --font-size-3: 25px;
-  --font-ratio: 1.25;
+  --type-size-0: 12.8px;
+  --type-size-1: 16px;
+  --type-size-2: 20px;
+  --type-size-3: 25px;
+  --type-ratio: 1.25;
 }
