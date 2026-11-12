@@ -10,15 +10,14 @@ with overflow:hidden rounds them).
 Soft control shadows from tokens.css are allowed. Frames themselves must
 not have a drop shadow.
 
-Pink #fcb4c4 (exact only) PASS when:
-  (a) title first letter (.first / ::first-letter / title-initial),
-  (b) the "i" in the ilghar.studio wordmark,
-  (c) accents inside illustration SVGs or Persian marks (امتناع),
-  (d) slider thumbs and focus rings (LAYOUT v2).
-A heading (h1-h6) whose whole text is #fcb4c4 FAILs; only the first letter may be pink.
-FAIL: pink tints / near-pink (not exact #fcb4c4), pink with opacity/alpha,
-pink in body text, pink in UI chrome (buttons, borders, inputs, nav) or
-backgrounds, and any blue.
+Approved pink tokens (#fcb4c4, #b78597, #da94af, #745a7a and the --pink / --pink-mark-* /
+--pink-fill-dark variables) may be used anywhere. They are palette colours, not tints.
+FAIL: off-palette pinks, and pink with opacity/alpha, color-mix, or rgba tints.
+Pink text must reach 4.5:1 against its background when the script can resolve both
+hexes; large text and marks (24px / 18pt, .first, .dc, h1) must reach 3:1.
+Hāèl's 12 Nov 2026 (15:31) values: first letters and pink marks #b78597 (about 2.9:1 on paper, large or decorative, not AA). Small text under ~18px, and first letters on Signature-animation glass #b8adb1, use mauve #856a8e. Glass accents #da94af. Dark Sign / Live fill #745a7a. Dark marks stay #fcb4c4. Do not put #b78597 on #b8adb1 (about 1.4:1).
+A heading (h1-h6) whose whole text is an approved pink FAILs; only the first letter may be pink.
+Walnut #5b4032 is in the palette. The blue rule and the photo allowlist are unchanged.
 
 Dark mode: the --name title (h1/.name, 24px+) after the pink first letter
 must be #856a8e / var(--mauve-em). Headings under 24px (h2 at 23px, etc.)
@@ -63,10 +62,26 @@ SKIP_DIRS = {".git", "node_modules", "dist", "vendor", "__pycache__", ".venv", "
 
 FALLBACK_HEX = {
     "#f9fafb", "#5a515c", "#473448", "#856a8e", "#7d5a7c", "#775a76",
-    "#948e95", "#a6a1a7", "#fcb4c4", "#2a272d", "#d4d2d2",
+    "#948e95", "#a6a1a7", "#fcb4c4", "#b78597", "#da94af", "#745a7a", "#5b4032",
+    "#2a272d", "#d4d2d2",
+}
+
+APPROVED_PINKS = {"#fcb4c4", "#b78597", "#da94af", "#745a7a"}
+APPROVED_PINK_RGB = {
+    "#fcb4c4": (0xFC, 0xB4, 0xC4),
+    "#b78597": (0xB7, 0x85, 0x97),
+    "#da94af": (0xDA, 0x94, 0xAF),
+    "#745a7a": (0x74, 0x5A, 0x7A),
+}
+APPROVED_PINK_VARS = {
+    "pink", "pink-mark-light", "pink-mark-dark", "pink-fill-dark", "pink-glass", "glass-accent", "dc", "ring",
 }
 PINK = "#fcb4c4"
 PINK_RGB = (0xFC, 0xB4, 0xC4)
+
+def _is_siganim_repo() -> bool:
+    return ROOT.name.lower() == "signature-animation"
+
 
 GENERIC_FONTS = {"sans-serif", "serif", "monospace", "inherit", "initial", "unset"}
 NAMED_FONTS = {"jost", "vazirmatn"}
@@ -93,35 +108,6 @@ WEIGHT_VAR_DEF = re.compile(
 BORDER_RADIUS = re.compile(r"border-radius\s*:\s*([^;}\n]+)", re.I)
 BOX_SHADOW = re.compile(r"box-shadow\s*:\s*([^;}\n]+)", re.I)
 
-# PASS contexts for exact #fcb4c4 / var(--pink)
-PINK_OK_CONTEXT = re.compile(
-    r"("
-    r"\.first\b|::first-letter|first-letter|"
-    r"title.?initial|pink.?initial|span\.first|h1\s+\.first|h1\s+\.dc|"
-    r"\.name\s+\.first|\.name\s+\.dc|\.hero\s+\.first|\.dc\b|"
-    r"class(?:Name)?=\"[^\"]*\bfirst\b|"
-    r"wordmark|\.wm-i\b|\.brand-i\b|ilghar[^\n]{0,40}\.first|"
-    r"امتناع|"
-    r"--pink\s*:|"
-    r"focus-visible|outline(?:-color)?\s*:|--ring\b|"
-    r"slider-thumb|range-thumb|accent-color|"
-    r"ul\.dots|\.dots\s+li::before"
-    r")",
-    re.I,
-)
-
-PINK_FAIL_CONTEXT = re.compile(
-    r"("
-    r"background(?:-color)?\s*:|"
-    r"border(?:-color)?\s*:|"
-    r"\bbutton\b|\.btn\b|\.button\b|"
-    r"\binput\b|\.input\b|\bnav\b|\.nav\b|"
-    r"\bbody\b|\.body-text\b|\.prose\b|"
-    r"opacity\s*:|color-mix\("
-    r")",
-    re.I,
-)
-
 ILLUSTRATION_SVG = re.compile(
     r"(?:^|/)(?:docs/hero/|assets/)?(?:hero|board|og|illustration|mark)[^/]*\.svg$",
     re.I,
@@ -139,6 +125,7 @@ GOOGLE_FONT = re.compile(
 
 
 def load_allowed_hex() -> set[str]:
+    allowed = {h.lower() for h in FALLBACK_HEX}
     for p in TOKENS_CANDIDATES:
         if p.exists():
             found = set(
@@ -146,8 +133,9 @@ def load_allowed_hex() -> set[str]:
                 for h in re.findall(r"#[0-9A-Fa-f]{6}\b", p.read_text(encoding="utf-8", errors="ignore"))
             )
             if found:
-                return found
-    return set(FALLBACK_HEX)
+                allowed |= found
+                break
+    return allowed
 
 
 ALLOWED_HEX = load_allowed_hex()
@@ -174,8 +162,8 @@ def near_allowed(r: int, g: int, b: int, tol: int = 18) -> bool:
 
 
 def is_pink_tint(r: int, g: int, b: int) -> bool:
-    """Pinkish hue that is not exact #fcb4c4."""
-    if (r, g, b) == PINK_RGB:
+    """Pinkish hue that is not an approved pink token."""
+    if (r, g, b) in APPROVED_PINK_RGB.values():
         return False
     h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
     hue = h * 360.0
@@ -405,14 +393,14 @@ def check_source_hex(text: str) -> list[str]:
     bad: list[str] = []
     for h in set(re.findall(r"#[0-9A-Fa-f]{3,8}\b", check)):
         raw = h.lower()
-        if len(raw) == 9 and raw[:7] == PINK:
+        if len(raw) == 9 and raw[:7] in APPROVED_PINKS:
             bad.append(f"pink-alpha:{raw}")
             continue
         hx = expand(raw)
         if len(hx) != 7:
             continue
-        if hx == PINK:
-            continue  # owned by check_pink
+        if hx in APPROVED_PINKS:
+            continue  # owned by check_pink / contrast
         r, g, b = int(hx[1:3], 16), int(hx[3:5], 16), int(hx[5:7], 16)
         if is_pink_tint(r, g, b):
             bad.append(f"pink-tint:{hx}")
@@ -436,8 +424,48 @@ def check_blue_hex(text: str) -> list[str]:
     return bad
 
 
+
+def _rel_luminance(hx: str) -> float:
+    r, g, b = int(hx[1:3], 16) / 255, int(hx[3:5], 16) / 255, int(hx[5:7], 16) / 255
+
+    def ch(c: float) -> float:
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+    return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b)
+
+
+def contrast_ratio(a: str, b: str) -> float:
+    la, lb = _rel_luminance(a), _rel_luminance(b)
+    lighter, darker = max(la, lb), min(la, lb)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def _as_hex(val: str) -> str | None:
+    val = _norm_css_val(val) if "_norm_css_val" in dir() else val.strip().lower()
+    m = re.fullmatch(r"#[0-9a-f]{6}", val)
+    return m.group(0) if m else None
+
+
+def is_approved_pink_hex(hx: str) -> bool:
+    return expand(hx).lower() in APPROVED_PINKS
+
+
+def _pink_alpha_in(ctx: str) -> bool:
+    if re.search(r"#(?:fcb4c4|b78597|da94af|745a7a|aa527d)[0-9a-fA-F]{2}\b", ctx, re.I):
+        return True
+    if re.search(r"color-mix\([^)]*#(?:fcb4c4|b78597|da94af|745a7a|aa527d)", ctx, re.I):
+        return True
+    if re.search(
+        r"rgba?\(\s*(252\s*,\s*180\s*,\s*196|183\s*,\s*133\s*,\s*151|218\s*,\s*148\s*,\s*175|116\s*,\s*90\s*,\s*122|170\s*,\s*82\s*,\s*125)\s*,",
+        ctx,
+        re.I,
+    ):
+        return True
+    return False
+
+
 def check_pink(text: str, rel: str) -> list[str]:
-    """Exact #fcb4c4 / var(--pink) only in allowed accent contexts."""
+    """Approved pink tokens may be used anywhere. Fail only alpha / rgba / color-mix tints."""
     issues: list[str] = []
     if rel.endswith("tokens.css") or rel.endswith("tokens-first-page.css"):
         return issues
@@ -446,26 +474,114 @@ def check_pink(text: str, rel: str) -> list[str]:
     if rel.endswith(".svg") and re.search(r"(?:^|/)(?:docs/hero|assets)/(?:hero|board)", rel):
         return issues
 
-    for m in re.finditer(r"#fcb4c4|var\(\s*--pink\s*\)", text, re.I):
+    token_pat = (
+        r"#fcb4c4|#b78597|#da94af|#745a7a|"
+        r"var\(\s*--(?:pink|pink-mark-light|pink-mark-dark|pink-fill-dark)\s*\)"
+    )
+    for m in re.finditer(token_pat, text, re.I):
         start = max(0, m.start() - 220)
         end = min(len(text), m.end() + 100)
         ctx = text[start:end]
-        if re.search(r"#fcb4c4[0-9a-fA-F]{2}\b", ctx) or re.search(
-            r"(opacity\s*:\s*[^;]+|color-mix\([^)]*#fcb4c4|rgba?\(\s*252\s*,\s*180\s*,\s*196\s*,)",
-            ctx,
-            re.I,
-        ):
+        if _pink_alpha_in(ctx):
             issues.append(f"pink-alpha near: {ctx.replace(chr(10), ' ')[:90]!r}")
-            continue
-        if PINK_FAIL_CONTEXT.search(ctx):
-            issues.append(f"pink-ui-or-body near: {ctx.replace(chr(10), ' ')[:90]!r}")
-            continue
-        if PINK_OK_CONTEXT.search(ctx):
-            continue
-        if re.search(r"--[a-z0-9-]+\s*:\s*#fcb4c4", ctx, re.I) or re.search(r"pink\s*:\s*#fcb4c4", ctx, re.I):
-            continue
-        issues.append(f"pink-not-accent near: {ctx.replace(chr(10), ' ')[:90]!r}")
     return issues
+
+
+def _is_mark_or_large(sel: str, body: str) -> bool:
+    if re.search(r"::first-letter|\.first\b|\.dc\b|\.name\b|(^|[^a-z-])h1\b", sel, re.I):
+        return True
+    sizes = re.findall(r"font-size\s*:\s*([^;}\n]+)", body, re.I)
+    for raw in sizes:
+        m = re.search(r"([\d.]+)\s*(px|pt)", raw, re.I)
+        if not m:
+            continue
+        n, unit = float(m.group(1)), m.group(2).lower()
+        if unit == "px" and n >= 24:
+            return True
+        if unit == "pt" and n >= 18:
+            return True
+    return False
+
+
+def _is_decoration_color_sel(sel: str) -> bool:
+    if re.search(r"::(?:before|after)", sel, re.I) and re.search(r"dots|\.dot\b", sel, re.I):
+        return True
+    return False
+
+
+def _glass_exception(fg: str, bg: str) -> bool:
+    """No pink mark is allowed on Signature-animation glass #b8adb1.
+    First letters on that base use mauve #856a8e (not a pink token)."""
+    return False
+
+
+def _paper_mark_exception(fg: str, bg: str) -> bool:
+    """Hāèl's 12 Nov 2026 light mark #b78597 is about 2.9:1 on paper #f9fafb.
+    Allowed for large or decorative use only; not AA."""
+    return fg == "#b78597" and bg == "#f9fafb"
+
+
+def check_pink_contrast(css: str) -> list[str]:
+    """When colour and background hexes can be resolved, require 4.5:1 (body)
+    or 3:1 (large text / marks). Exempt #b78597 on #f9fafb for marks (about 2.9:1, not AA). Do not exempt #b78597 on #b8adb1; first letters on that glass use mauve #856a8e."""
+    issues: list[str] = []
+    text = _strip_css_comments(css)
+    light, dark = _theme_vars(text)
+    maps = {"light": light, "dark": dark}
+    default_bg = {"light": "#f9fafb", "dark": "#2a272d"}
+
+    def bg_for(body: str, theme: str, vm: dict[str, str]) -> str | None:
+        bm = re.search(r"background(?:-color)?\s*:\s*([^;}\n]+)", body, re.I)
+        if bm:
+            hx = _as_hex(_resolve_css_val(bm.group(1), vm))
+            if hx:
+                return hx
+        canvas = vm.get("canvas") or vm.get("paper") or default_bg[theme]
+        return _as_hex(_resolve_css_val(canvas, vm)) or default_bg[theme]
+
+    for sel, body in css_rules(text):
+        if re.search(r"(^|,)\s*(:root|html)\s*([,{]|$)", sel, re.I) and "--" in body and "color:" not in re.sub(
+            r"--[a-z0-9-]+\s*:[^;]+", "", body, flags=re.I
+        ):
+            continue
+        if _is_decoration_color_sel(sel):
+            continue
+        cm = re.search(r"(?<!-)(?<!outline-)(?<!border-)color\s*:\s*([^;}\n]+)", body, re.I)
+        if not cm:
+            continue
+        # skip custom property definitions accidentally caught
+        if re.search(r"--[a-z0-9-]+\s*$", sel, re.I):
+            continue
+        parts = [p.strip() for p in sel.split(",") if p.strip()]
+        # theme from selector
+        in_dark = bool(re.search(r"data-theme=['\"]?dark", sel, re.I))
+        themes = _rule_themes(sel, in_dark)
+        floor = 3.0 if _is_mark_or_large(sel, body) else 4.5
+        kind = "mark" if floor == 3.0 else "text"
+        for theme in themes:
+            vm = maps[theme]
+            fg = _as_hex(_resolve_css_val(cm.group(1), vm))
+            if not fg or fg not in APPROVED_PINKS:
+                continue
+            bg = bg_for(body, theme, vm)
+            if not bg:
+                continue
+            if _glass_exception(fg, bg):
+                continue
+            if floor <= 3.0 and _paper_mark_exception(fg, bg):
+                continue
+            ratio = contrast_ratio(fg, bg)
+            if ratio + 1e-9 < floor:
+                issues.append(
+                    f"pink-contrast: {sel[:80]} {fg} on {bg} is {ratio:.2f}:1 "
+                    f"({kind}, need {floor:.1f}:1) in {theme}"
+                )
+    seen, uniq = set(), []
+    for i in issues:
+        if i not in seen:
+            seen.add(i)
+            uniq.append(i)
+    return uniq
 
 
 def _var_map(text: str) -> dict[str, str]:
@@ -744,11 +860,11 @@ def _resolve_css_val(val: str, vm: dict[str, str], depth: int = 0) -> str:
 
 def _is_exact_pink(val: str, vm: dict[str, str]) -> bool:
     resolved = _norm_css_val(_resolve_css_val(val, vm))
-    if resolved == "#fcb4c4":
+    if resolved in APPROVED_PINKS:
         return True
-    if resolved in {"var(--pink)"}:
+    if re.fullmatch(r"var\(--(?:pink|pink-mark-light|pink-mark-dark|pink-fill-dark)\)", resolved):
         return True
-    if _norm_css_val(val) == "#fcb4c4":
+    if _norm_css_val(val) in APPROVED_PINKS:
         return True
     return False
 
@@ -773,7 +889,7 @@ def _rule_themes(sel: str, in_dark: bool) -> list[str]:
 
 
 def check_pink_headings(css: str) -> list[str]:
-    """FAIL when an h1-h6's whole text is #fcb4c4. First letter may be pink."""
+    """FAIL when an h1-h6's whole text is an approved pink. First letter may be pink."""
     issues: list[str] = []
     text = _strip_css_comments(css)
     light, dark = _theme_vars(text)
@@ -791,7 +907,7 @@ def check_pink_headings(css: str) -> list[str]:
             if _is_exact_pink(val, maps[theme]):
                 issues.append(
                     f"pink-heading: {', '.join(headings)[:80]} color:{_clean_decl(val)} in {theme} "
-                    f"(only the first letter may be #fcb4c4)"
+                    f"(only the first letter may be pink)"
                 )
                 return
 
@@ -960,16 +1076,21 @@ def check_content_images(html: str) -> list[str]:
 
 
 def run_broken_samples() -> list[str]:
-    """Prove body-text pink and background pink both FAIL; first-letter PASS.
+    """Prove contrast, off-palette and alpha rules; approved tokens may be used anywhere.
     Also: square frame FAIL, 12px frame PASS, wrong font FAIL, Jost PASS,
     SVG art radius is ignored."""
     fails: list[str] = []
-    body = "p.copy { color: #fcb4c4; } /* body text */\n"
-    bg = ".panel { background: #fcb4c4; } /* background */\n"
+    body = "p.copy { color: #fcb4c4; } /* body text on paper, 1.61:1 */\n"
+    bg = ".panel { background: #fcb4c4; } /* approved fill */\n"
     border = "button.cta { border-color: #fcb4c4; }\n"
+    fill_pending = "button.sign { background: #745a7a; }\n"
     tint = ".x { color: #ffb3c3; } /* pink tint */\n"
+    tint2 = ".x { color: #ffbfd0; }\n"
     alpha = ".x { color: #fcb4c480; }\n"
-    ok = ".name .first { color: #fcb4c4; /* title initial */ }\n"
+    alpha2 = ".x { color: #b7859780; }\n"
+    ok_light = ":root:not([data-theme=dark]) .name .first { color: #b78597; background: #f9fafb; }\n"
+    ok_dark = "[data-theme=dark] .name .first { color: #fcb4c4; background: #2a272d; }\n"
+    glass = ".name .first { color: #b78597; background: #b8adb1; font-size: 31px; }\n"
 
     def hit(label, src, expect_fail: bool, finder):
         found = finder(src)
@@ -984,12 +1105,17 @@ def run_broken_samples() -> list[str]:
             x for x in check_source_hex(src) if "pink" in x or x.startswith("#")
         ]
 
-    hit("body", body, True, pink_or_hex)
-    hit("background", bg, True, pink_or_hex)
-    hit("border-ui", border, True, pink_or_hex)
+    hit("body", body, True, lambda s: check_pink_contrast(s) or pink_or_hex(s))
+    hit("background", bg, False, pink_or_hex)
+    hit("border-ui", border, False, pink_or_hex)
+    hit("fill-745a7a", fill_pending, False, pink_or_hex)
     hit("tint", tint, True, check_source_hex)
+    hit("tint-ffbfd0", tint2, True, check_source_hex)
     hit("alpha", alpha, True, check_source_hex)
-    hit("first-letter", ok, False, pink_or_hex)
+    hit("alpha-b78597", alpha2, True, check_source_hex)
+    hit("first-letter-light", ok_light, False, lambda s: check_pink(s, "broken/x.css") + check_pink_contrast(s))
+    hit("first-letter-dark", ok_dark, False, lambda s: check_pink(s, "broken/x.css") + check_pink_contrast(s))
+    hit("glass-b78597", glass, True, check_pink_contrast)
 
     # New v2 samples
     hit("square-frame", ".frame { border-radius: 0; }\n", True, check_radius)
@@ -1033,7 +1159,7 @@ def run_broken_samples() -> list[str]:
 
     hit("token-brandon", ':root{--font:"Brandon Text",Jost,system-ui,sans-serif}', True, check_fonts)
     hit("token-jost", ":root{--font:Jost,sans-serif;--font-fa:Vazirmatn,Jost,sans-serif}", False, check_fonts)
-    hit("drop-cap-dc", "h1 .dc{color:#fcb4c4}", False, lambda s: check_pink(s, "broken/dc.css"))
+    hit("drop-cap-dc", ":root:not([data-theme=dark]) h1 .dc{color:#b78597;background:#f9fafb}", False, lambda s: check_pink(s, "broken/dc.css") + check_pink_contrast(s))
     hit("pink-token-def", ":root{--dc:#fcb4c4;--name:#473448}", False, lambda s: check_pink(s, "broken/tok.css"))
 
     hit(
@@ -1176,6 +1302,8 @@ def main() -> int:
                     if suf in {".css", ".html"}:
                         for iss in check_pink_headings(text):
                             failures.append(f"PINK_HEADING {rel}: {iss}")
+                        for iss in check_pink_contrast(text):
+                            failures.append(f"PINK_CONTRAST {rel}: {iss}")
                     if suf == ".html":
                         for iss in check_content_images(text):
                             failures.append(f"IMAGE {rel}: {iss}")
@@ -1222,6 +1350,8 @@ def main() -> int:
             failures.append(f"DARK_TITLE {iss}")
         for iss in check_pink_headings(page_css):
             failures.append(f"PINK_HEADING {iss}")
+        for iss in check_pink_contrast(page_css):
+            failures.append(f"PINK_CONTRAST {iss}")
 
     seen = set()
     uniq = []

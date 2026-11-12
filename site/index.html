@@ -99,7 +99,10 @@ input[type=range]{width:100%;accent-color:var(--mauve-em)}
     cards[0].x+=n;
     var ink=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#5a515c';
     var line=getComputedStyle(document.documentElement).getPropertyValue('--line').trim()||'#7d5a7c';
-    var pink=getComputedStyle(document.documentElement).getPropertyValue('--pink').trim()||'#856a8e';
+    var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+    var pink=isDark
+      ?(getComputedStyle(document.documentElement).getPropertyValue('--pink-mark-dark').trim()||'#fcb4c4')
+      :(getComputedStyle(document.documentElement).getPropertyValue('--mauve-em').trim()||'#856a8e');
     var parts=['<rect width="360" height="200" fill="var(--bg)"/>'];
     for(var x=0;x<=360;x+=8) parts.push('<line x1="'+x+'" y1="0" x2="'+x+'" y2="200" stroke="'+line+'" stroke-width="0.5" opacity="0.35"/>');
     cards.forEach(function(c,i){
@@ -112,6 +115,7 @@ input[type=range]{width:100%;accent-color:var(--mauve-em)}
     verd.textContent=n?('refused · card1 off by '+n+'px'):'exact · base 8px · 3 columns';
   }
   nudge.addEventListener('input', draw); draw();
+  new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
 </body>
