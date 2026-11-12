@@ -2,7 +2,7 @@
   <a href="https://ilghar.github.io/ui-grid-extractor/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="docs/hero/hero-dark.webp">
-      <img src="docs/hero/hero-light.webp" width="100%" alt="The live Pages project hero: UI GRID extractor, and a measured layout with column guides and labeled boxes.">
+      <img src="docs/hero/hero-light.webp" width="100%" alt="The live grid check measuring three cards on an 8px grid: card1 is nudged 3px, marked misaligned, and the verdict reads refused · card1 off by 3px.">
     </picture>
   </a>
 </p>
