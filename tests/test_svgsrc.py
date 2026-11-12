@@ -4,7 +4,8 @@ sys.path.insert(0, ROOT)
 from gridx import core, fixtures
 from gridx.svgsrc import parse_svg
 
-SVG = os.path.join(ROOT, "fixtures", "card-8px.source.svg")
+# Keep the parser input separate from the outlined SVG used for presentation.
+SVG = os.path.join(ROOT, "tests", "fixtures", "card-8px.svg.xml")
 
 class SvgSource(unittest.TestCase):
     def test_matches_json_fixture_tokens(self):
