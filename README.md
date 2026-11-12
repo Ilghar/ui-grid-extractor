@@ -1,22 +1,22 @@
-<!-- Copy to the top of every README. Replace REPO, files in docs/hero/. -->
 <p align="center">
   <a href="https://ilghar.github.io/ui-grid-extractor/">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/hero/hero-dark.svg">
-      <img src="docs/hero/hero-light.svg" alt="Title card for Measured UI Grid Extractor by ilghar.studio." width="100%">
+      <source media="(prefers-color-scheme: dark)" srcset="docs/hero/hero-dark.webp">
+      <img src="docs/hero/hero-light.webp" width="100%" alt="The live grid check measuring three cards on an 8px grid: card1 is nudged 3px, marked misaligned, and the verdict reads refused · card1 off by 3px.">
     </picture>
   </a>
 </p>
 
-<p align="center"><b><a href="https://ilghar.github.io/ui-grid-extractor/">OPEN THE LIVE APP</a></b> | <a href="#how-it-works">HOW IT WORKS</a></p>
+# UI grid extractor
 
-<!-- Function previews: one per app function, GIF/SVG, each linking into the live app -->
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/hero/f1-dark.webp"><source media="(prefers-color-scheme: light)" srcset="docs/hero/f1-light.webp"><img src="docs/hero/f1-light.gif" width="100%" alt="Clean layout overlay with an 8px base unit and three column guides on labeled boxes."></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/hero/f2-dark.webp"><source media="(prefers-color-scheme: light)" srcset="docs/hero/f2-light.webp"><img src="docs/hero/f2-light.gif" width="100%" alt="The same overlay with card1 dashed and marked misaligned after a 3px nudge."></picture> |
-|---|---|
+A tool that measures a layout's grid from element boxes, instead of assuming one.
 
-## How it works
-- Give it measured element boxes as JSON in px, pt, or mm, with zoom.
-- It tests base units, column guides, and type scale against the measurements.
-- It exports a report, CSS tokens, and an SVG overlay, or keeps an unsupported verdict visible.
+Open the live app: [ilghar.github.io/ui-grid-extractor](https://ilghar.github.io/ui-grid-extractor/) · Repository: [Ilghar/ui-grid-extractor](https://github.com/Ilghar/ui-grid-extractor)
 
-<sub>ilghar.studio</sub>
+## How it's used
+
+Give it measured element boxes as JSON in px, pt, or mm, with zoom. It tests base units, column guides, and type scale against the measurements. It exports a report, CSS tokens, and an SVG overlay, or keeps an unsupported verdict visible.
+
+The live page includes a grid check you can run in the browser.
+
+[ilghar.studio](https://ilghar.studio)
