@@ -10,12 +10,12 @@ with overflow:hidden rounds them).
 Soft control shadows from tokens.css are allowed. Frames themselves must
 not have a drop shadow.
 
-Approved pink tokens (#fcb4c4, #aa527d, #704757 and the --pink / --pink-mark-* /
+Approved pink tokens (#fcb4c4, #b78597, #da94af, #745a7a and the --pink / --pink-mark-* /
 --pink-fill-dark variables) may be used anywhere. They are palette colours, not tints.
 FAIL: off-palette pinks, and pink with opacity/alpha, color-mix, or rgba tints.
 Pink text must reach 4.5:1 against its background when the script can resolve both
 hexes; large text and marks (24px / 18pt, .first, .dc, h1) must reach 3:1.
-Exception, Signature-animation only: #aa527d on #b8adb1 is allowed (chosen by Hāèl).
+Hāèl's 12 Nov 2026 (15:31) values: first letters and pink marks #b78597 (about 2.9:1 on paper, large or decorative, not AA). Small text under ~18px, and first letters on Signature-animation glass #b8adb1, use mauve #856a8e. Glass accents #da94af. Dark Sign / Live fill #745a7a. Dark marks stay #fcb4c4. Do not put #b78597 on #b8adb1 (about 1.4:1).
 A heading (h1-h6) whose whole text is an approved pink FAILs; only the first letter may be pink.
 Walnut #5b4032 is in the palette. The blue rule and the photo allowlist are unchanged.
 
@@ -62,18 +62,19 @@ SKIP_DIRS = {".git", "node_modules", "dist", "vendor", "__pycache__", ".venv", "
 
 FALLBACK_HEX = {
     "#f9fafb", "#5a515c", "#473448", "#856a8e", "#7d5a7c", "#775a76",
-    "#948e95", "#a6a1a7", "#fcb4c4", "#aa527d", "#704757", "#5b4032",
+    "#948e95", "#a6a1a7", "#fcb4c4", "#b78597", "#da94af", "#745a7a", "#5b4032",
     "#2a272d", "#d4d2d2",
 }
 
-APPROVED_PINKS = {"#fcb4c4", "#aa527d", "#704757"}
+APPROVED_PINKS = {"#fcb4c4", "#b78597", "#da94af", "#745a7a"}
 APPROVED_PINK_RGB = {
     "#fcb4c4": (0xFC, 0xB4, 0xC4),
-    "#aa527d": (0xAA, 0x52, 0x7D),
-    "#704757": (0x70, 0x47, 0x57),
+    "#b78597": (0xB7, 0x85, 0x97),
+    "#da94af": (0xDA, 0x94, 0xAF),
+    "#745a7a": (0x74, 0x5A, 0x7A),
 }
 APPROVED_PINK_VARS = {
-    "pink", "pink-mark-light", "pink-mark-dark", "pink-fill-dark", "dc", "ring",
+    "pink", "pink-mark-light", "pink-mark-dark", "pink-fill-dark", "pink-glass", "glass-accent", "dc", "ring",
 }
 PINK = "#fcb4c4"
 PINK_RGB = (0xFC, 0xB4, 0xC4)
@@ -450,12 +451,12 @@ def is_approved_pink_hex(hx: str) -> bool:
 
 
 def _pink_alpha_in(ctx: str) -> bool:
-    if re.search(r"#(?:fcb4c4|aa527d|704757)[0-9a-fA-F]{2}\b", ctx, re.I):
+    if re.search(r"#(?:fcb4c4|b78597|da94af|745a7a|aa527d)[0-9a-fA-F]{2}\b", ctx, re.I):
         return True
-    if re.search(r"color-mix\([^)]*#(?:fcb4c4|aa527d|704757)", ctx, re.I):
+    if re.search(r"color-mix\([^)]*#(?:fcb4c4|b78597|da94af|745a7a|aa527d)", ctx, re.I):
         return True
     if re.search(
-        r"rgba?\(\s*(252\s*,\s*180\s*,\s*196|170\s*,\s*82\s*,\s*125|112\s*,\s*71\s*,\s*87)\s*,",
+        r"rgba?\(\s*(252\s*,\s*180\s*,\s*196|183\s*,\s*133\s*,\s*151|218\s*,\s*148\s*,\s*175|116\s*,\s*90\s*,\s*122|170\s*,\s*82\s*,\s*125)\s*,",
         ctx,
         re.I,
     ):
@@ -474,7 +475,7 @@ def check_pink(text: str, rel: str) -> list[str]:
         return issues
 
     token_pat = (
-        r"#fcb4c4|#aa527d|#704757|"
+        r"#fcb4c4|#b78597|#da94af|#745a7a|"
         r"var\(\s*--(?:pink|pink-mark-light|pink-mark-dark|pink-fill-dark)\s*\)"
     )
     for m in re.finditer(token_pat, text, re.I):
@@ -509,12 +510,20 @@ def _is_decoration_color_sel(sel: str) -> bool:
 
 
 def _glass_exception(fg: str, bg: str) -> bool:
-    return fg == "#aa527d" and bg == "#b8adb1" and _is_siganim_repo()
+    """No pink mark is allowed on Signature-animation glass #b8adb1.
+    First letters on that base use mauve #856a8e (not a pink token)."""
+    return False
+
+
+def _paper_mark_exception(fg: str, bg: str) -> bool:
+    """Hāèl's 12 Nov 2026 light mark #b78597 is about 2.9:1 on paper #f9fafb.
+    Allowed for large or decorative use only; not AA."""
+    return fg == "#b78597" and bg == "#f9fafb"
 
 
 def check_pink_contrast(css: str) -> list[str]:
     """When colour and background hexes can be resolved, require 4.5:1 (body)
-    or 3:1 (large text / marks). Exempt #aa527d on #b8adb1 in Signature-animation only."""
+    or 3:1 (large text / marks). Exempt #b78597 on #f9fafb for marks (about 2.9:1, not AA). Do not exempt #b78597 on #b8adb1; first letters on that glass use mauve #856a8e."""
     issues: list[str] = []
     text = _strip_css_comments(css)
     light, dark = _theme_vars(text)
@@ -558,6 +567,8 @@ def check_pink_contrast(css: str) -> list[str]:
             if not bg:
                 continue
             if _glass_exception(fg, bg):
+                continue
+            if floor <= 3.0 and _paper_mark_exception(fg, bg):
                 continue
             ratio = contrast_ratio(fg, bg)
             if ratio + 1e-9 < floor:
@@ -1072,14 +1083,14 @@ def run_broken_samples() -> list[str]:
     body = "p.copy { color: #fcb4c4; } /* body text on paper, 1.61:1 */\n"
     bg = ".panel { background: #fcb4c4; } /* approved fill */\n"
     border = "button.cta { border-color: #fcb4c4; }\n"
-    fill_pending = "button.sign { background: #704757; }\n"
+    fill_pending = "button.sign { background: #745a7a; }\n"
     tint = ".x { color: #ffb3c3; } /* pink tint */\n"
     tint2 = ".x { color: #ffbfd0; }\n"
     alpha = ".x { color: #fcb4c480; }\n"
-    alpha2 = ".x { color: #aa527d80; }\n"
-    ok_light = ":root:not([data-theme=dark]) .name .first { color: #aa527d; background: #f9fafb; }\n"
+    alpha2 = ".x { color: #b7859780; }\n"
+    ok_light = ":root:not([data-theme=dark]) .name .first { color: #b78597; background: #f9fafb; }\n"
     ok_dark = "[data-theme=dark] .name .first { color: #fcb4c4; background: #2a272d; }\n"
-    glass = ".name .first { color: #aa527d; background: #b8adb1; font-size: 31px; }\n"
+    glass = ".name .first { color: #b78597; background: #b8adb1; font-size: 31px; }\n"
 
     def hit(label, src, expect_fail: bool, finder):
         found = finder(src)
@@ -1097,14 +1108,14 @@ def run_broken_samples() -> list[str]:
     hit("body", body, True, lambda s: check_pink_contrast(s) or pink_or_hex(s))
     hit("background", bg, False, pink_or_hex)
     hit("border-ui", border, False, pink_or_hex)
-    hit("fill-704757", fill_pending, False, pink_or_hex)
+    hit("fill-745a7a", fill_pending, False, pink_or_hex)
     hit("tint", tint, True, check_source_hex)
     hit("tint-ffbfd0", tint2, True, check_source_hex)
     hit("alpha", alpha, True, check_source_hex)
-    hit("alpha-aa527d", alpha2, True, check_source_hex)
+    hit("alpha-b78597", alpha2, True, check_source_hex)
     hit("first-letter-light", ok_light, False, lambda s: check_pink(s, "broken/x.css") + check_pink_contrast(s))
     hit("first-letter-dark", ok_dark, False, lambda s: check_pink(s, "broken/x.css") + check_pink_contrast(s))
-    hit("glass-aa527d", glass, not _is_siganim_repo(), check_pink_contrast)
+    hit("glass-b78597", glass, True, check_pink_contrast)
 
     # New v2 samples
     hit("square-frame", ".frame { border-radius: 0; }\n", True, check_radius)
@@ -1148,7 +1159,7 @@ def run_broken_samples() -> list[str]:
 
     hit("token-brandon", ':root{--font:"Brandon Text",Jost,system-ui,sans-serif}', True, check_fonts)
     hit("token-jost", ":root{--font:Jost,sans-serif;--font-fa:Vazirmatn,Jost,sans-serif}", False, check_fonts)
-    hit("drop-cap-dc", ":root:not([data-theme=dark]) h1 .dc{color:#aa527d;background:#f9fafb}", False, lambda s: check_pink(s, "broken/dc.css") + check_pink_contrast(s))
+    hit("drop-cap-dc", ":root:not([data-theme=dark]) h1 .dc{color:#b78597;background:#f9fafb}", False, lambda s: check_pink(s, "broken/dc.css") + check_pink_contrast(s))
     hit("pink-token-def", ":root{--dc:#fcb4c4;--name:#473448}", False, lambda s: check_pink(s, "broken/tok.css"))
 
     hit(

@@ -2,7 +2,7 @@
 :root{
   --paper:#f9fafb; --ink:#5a515c; --plum:#473448;
   --mauve-em:#856a8e; --mauve-line:#7d5a7c; --mauve-label:#775a76;
-  --grey:#948e95; --grey-soft:#a6a1a7; --pink:#fcb4c4; --pink-mark-light:#aa527d; --pink-mark-dark:#fcb4c4; --card:#2a272d; --on-dark:#d4d2d2;
+  --grey:#948e95; --grey-soft:#a6a1a7; --pink:#fcb4c4; --pink-mark-light:#b78597; --pink-mark-dark:#fcb4c4; --pink-fill-dark:#745a7a; --card:#2a272d; --on-dark:#d4d2d2;
   --bg:var(--paper); --fg:var(--ink); --head:var(--plum); --label:var(--mauve-label); --line:var(--mauve-line);
   --dc:var(--pink-mark-light); --canvas:var(--bg); --surface:var(--bg);
   --font:"Brandon Text",Jost,Jost; --font-fa:Vazirmatn,"Brandon Text",Jost;
